@@ -30,9 +30,8 @@ GitHub Actions deploy to Firebase Hosting:
 - push to `main` deploys to the live site;
 - every pull request gets a preview URL.
 
-One-time setup:
+The Firebase project ID is `pianotrainer-8e3da` (set in `.firebaserc` and both workflows).
 
-1. Check the project ID in the Firebase console (Project settings). If it isn't `pianotrainer`, update `.firebaserc` and add a repository variable `FIREBASE_PROJECT_ID` (Settings → Secrets and variables → Actions → Variables).
-2. Create a service account key: easiest is `npx firebase-tools init hosting:github`, which creates the `FIREBASE_SERVICE_ACCOUNT_…` secret for you. Rename it to `FIREBASE_SERVICE_ACCOUNT`, or create that secret yourself with the JSON key of a service account that has the *Firebase Hosting Admin* role.
+One-time setup: create a service account key: easiest is `npx firebase-tools init hosting:github`, which creates the `FIREBASE_SERVICE_ACCOUNT_…` secret for you. Rename it to `FIREBASE_SERVICE_ACCOUNT`, or create that secret yourself with the JSON key of a service account that has the *Firebase Hosting Admin* role.
 
 Manual deploy: `npm run build && npx firebase-tools deploy --only hosting`.
