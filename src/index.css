@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* Phones in landscape: little vertical space, so controls get denser. */
+@custom-variant short (@media (max-height: 520px));
+
+@theme {
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #12112a;
+  --color-panel: #1c1a3d;
+  --color-panel-2: #26234f;
+  --color-line: #332f66;
+  --color-muted: #9a98c8;
+  --color-accent: #7c5cff;
+  --color-accent-2: #ff5ca8;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(1200px 600px at 10% -10%, #2b2170 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, #3a1450 0%, transparent 55%), var(--color-ink);
+  background-attachment: fixed;
+  color: #f4f3ff;
+  -webkit-tap-highlight-color: transparent;
+}
