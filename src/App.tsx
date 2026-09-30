@@ -3,6 +3,7 @@ import { NavBar } from './components/NavBar'
 import { Explorer } from './pages/Explorer'
 import { ComingSoon } from './pages/ComingSoon'
 import { Flashcards } from './pages/Flashcards'
+import { Home } from './pages/Home'
 
 export default function App() {
   return (
@@ -10,7 +11,7 @@ export default function App() {
       <NavBar />
       <main className="min-h-0 flex-1 overflow-y-auto">
         <Routes>
-          <Route path="/" element={<Navigate to="/explorer" replace />} />
+          <Route path="/" element={<Home />} />
           <Route path="/explorer" element={<Explorer />} />
           <Route path="/flashcards" element={<Flashcards />} />
           <Route
@@ -41,7 +42,7 @@ export default function App() {
               />
             }
           />
-          <Route path="*" element={<Navigate to="/explorer" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>

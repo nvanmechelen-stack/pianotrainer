@@ -52,3 +52,11 @@ export const ArpIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="M4 19h3v-4h3v-4h3V7h3V4h4" />
   </svg>
 )
+
+export const HomeIcon = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}>
+    <path d="M3 11.5 12 4l9 7.5" />
+    <path d="M5.5 9.5V20h13V9.5" />
+    <path d="M10 20v-5h4v5" />
+  </svg>
+)
