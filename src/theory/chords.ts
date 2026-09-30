@@ -9,7 +9,9 @@ export interface ChordType {
   /** Suffix written after the root in a chord symbol. */
   symbol: string
   name: string
-  /** The four tones of the basic (closed) chord, lowest first; used for drop-2. */
+  /** Four-note chord in root position, used for closed voicings and their inversions. */
+  closedChord: [Interval, Interval, Interval, Interval]
+  /** The four tones drop-2 voicings are built from, lowest first. */
   seventhChord: [Interval, Interval, Interval, Interval]
   /**
    * Spelling of the 12 roots (C upwards by semitone). Chosen per chord type so the
@@ -28,6 +30,7 @@ export const CHORD_TYPES: Record<ChordId, ChordType> = {
     label: 'm7',
     symbol: 'm7',
     name: 'Minor 7th',
+    closedChord: [I.R, I.b3, I.P5, I.b7],
     seventhChord: [I.R, I.b3, I.P5, I.b7],
     roots: MINOR_ROOTS,
   },
@@ -36,6 +39,7 @@ export const CHORD_TYPES: Record<ChordId, ChordType> = {
     label: '7',
     symbol: '7',
     name: 'Dominant 7th',
+    closedChord: [I.R, I.M3, I.P5, I.b7],
     seventhChord: [I.R, I.M3, I.P5, I.b7],
     roots: FLAT_ROOTS,
   },
@@ -44,6 +48,7 @@ export const CHORD_TYPES: Record<ChordId, ChordType> = {
     label: 'maj7',
     symbol: 'maj7',
     name: 'Major 7th',
+    closedChord: [I.R, I.M3, I.P5, I.M7],
     seventhChord: [I.R, I.M3, I.P5, I.M7],
     roots: FLAT_ROOTS,
   },
@@ -52,6 +57,7 @@ export const CHORD_TYPES: Record<ChordId, ChordType> = {
     label: 'm7♭5',
     symbol: 'm7♭5',
     name: 'Half-diminished',
+    closedChord: [I.R, I.b3, I.b5, I.b7],
     seventhChord: [I.R, I.b3, I.b5, I.b7],
     roots: MINOR_ROOTS,
   },
@@ -60,6 +66,8 @@ export const CHORD_TYPES: Record<ChordId, ChordType> = {
     label: '7alt',
     symbol: '7♭9♭13',
     name: 'Altered dominant',
+    // 7♯5 in closed position (♭13 = ♯5) keeps an altered colour.
+    closedChord: [I.R, I.M3, I.b13, I.b7],
     // Rootless four-note set (3-♭13-♭7-♭9) so drop-2 keeps the altered sound.
     seventhChord: [I.M3, I.b13, I.b7, I.b9],
     roots: ALT_ROOTS,

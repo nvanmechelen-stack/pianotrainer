@@ -1,42 +1,12 @@
 import { useState } from 'react'
-import { playChord, playNote } from '../audio/piano'
+import { playChord } from '../audio/piano'
 import { ArpIcon, PlayIcon } from '../components/Icons'
-import { type KeyHighlight, PianoKeyboard } from '../components/PianoKeyboard'
-import { type ColorKey, ROLE_COLORS, ROLE_LABELS } from '../components/roleColors'
+import { ROLE_COLORS } from '../components/roleColors'
+import { Segmented } from '../components/Segmented'
+import { colorKey, LabelToggle, type LabelMode, VoicingKeyboard } from '../components/VoicingKeyboard'
 import { CHORD_ORDER, CHORD_TYPES, type ChordId, rootFor } from '../theory/chords'
-import { fitRange } from '../theory/keyboard'
 import { noteName } from '../theory/notes'
 import { buildVoicing, VOICING_STYLES, type VoicingStyle } from '../theory/voicings'
-
-type LabelMode = 'degree' | 'note'
-
-interface SegmentedProps<T extends string | number> {
-  options: { value: T; label: string }[]
-  value: T
-  onChange: (v: T) => void
-  className?: string
-}
-
-function Segmented<T extends string | number>({ options, value, onChange, className = '' }: SegmentedProps<T>) {
-  return (
-    <div className={`flex gap-1 rounded-2xl bg-ink/60 p-1 ${className}`}>
-      {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          onClick={() => onChange(o.value)}
-          className={`flex-1 rounded-xl px-2.5 py-1.5 text-sm font-extrabold whitespace-nowrap transition-colors short:px-2 short:py-1 short:text-xs ${
-            o.value === value
-              ? 'bg-gradient-to-br from-accent to-accent-2 text-white shadow'
-              : 'text-muted hover:bg-panel-2 hover:text-white'
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  )
-}
 
 export function Explorer() {
   const [rootPc, setRootPc] = useState(2) // D
@@ -52,15 +22,6 @@ export function Explorer() {
   const variants = styleInfo.variants(chord)
 
   const midis = voicing.notes.map((n) => n.midi)
-  const range = fitRange(midis)
-  const colorKey = (n: (typeof voicing.notes)[number]): ColorKey => (n.isBass ? 'bass' : n.interval.role)
-
-  const highlights: KeyHighlight[] = voicing.notes.map((n) => ({
-    midi: n.midi,
-    label: labelMode === 'degree' ? n.interval.label : noteName(n.note),
-    color: ROLE_COLORS[colorKey(n)],
-  }))
-  const legend = [...new Set(voicing.notes.map(colorKey))]
 
   const changeStyle = (s: VoicingStyle) => {
     setStyle(s)
@@ -116,14 +77,7 @@ export function Explorer() {
             <h1 className="text-2xl leading-none font-black short:text-xl">{voicing.symbol}</h1>
             <span className="text-sm font-bold text-muted">{chord.name}</span>
           </div>
-          <Segmented
-            options={[
-              { value: 'degree', label: 'Degrees' },
-              { value: 'note', label: 'Notes' },
-            ]}
-            value={labelMode}
-            onChange={setLabelMode}
-          />
+          <LabelToggle value={labelMode} onChange={setLabelMode} />
           <button
             type="button"
             onClick={() => playChord(midis)}
@@ -140,21 +94,7 @@ export function Explorer() {
             <ArpIcon className="h-4 w-4" />
           </button>
         </div>
-        <PianoKeyboard
-          low={range.low}
-          high={range.high}
-          highlights={highlights}
-          onKeyPress={(m) => playNote(m)}
-          className="block max-h-[45dvh] w-full short:max-h-[58dvh]"
-        />
-        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold text-muted short:mt-1">
-          {legend.map((k) => (
-            <span key={k} className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full" style={{ background: ROLE_COLORS[k] }} />
-              {ROLE_LABELS[k]}
-            </span>
-          ))}
-        </div>
+        <VoicingKeyboard voicing={voicing} labelMode={labelMode} />
       </section>
 
       {/* Explanation */}

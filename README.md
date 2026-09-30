@@ -4,8 +4,10 @@ A small web app for learning jazz piano voicings, built with Vite, React, TypeSc
 
 Tabs:
 
-- **Explorer**: pick a root, chord type (m7, 7, maj7, m7♭5, 7alt) and voicing (Basic Shell, Rootless A/B, Drop-2) and see it on the keyboard.
-- **Flashcards**, **ii-V-I Flow**, **Speed Trainer**: coming soon.
+- **Home**: a welcome page explaining each section, a suggested practice path and the key colours.
+- **Explorer**: pick a root, chord type (m7, 7, maj7, m7♭5, 7alt) and voicing (Closed with inversions, Basic Shell, Rootless A/B, Drop-2) and see it on the keyboard.
+- **Flashcards**: rounds of 20 assignments ("Play F7 – Rootless Form B"). Try it on your piano, reveal the solution, then mark it *Got it* or *Practice again* (the card comes back a few cards later). Keyboard: Space = show solution, → = got it, ← = practice again.
+- **ii-V-I Flow**, **Speed Trainer**: coming soon.
 
 ## Development
 
@@ -21,6 +23,7 @@ npm run build    # production build in dist/
 - `src/theory/`: music theory (note spelling, chord types, voicings, keyboard range). Framework-free, so every tab can reuse it.
 - `src/components/PianoKeyboard.tsx`: the reusable SVG keyboard (highlighted keys with labels).
 - `src/audio/piano.ts`: a small Web Audio synth for playing notes and chords.
+- `src/flashcards/deck.ts`: card pool, rounds and scoring for the Flashcards tab (framework-free, tested).
 - `src/pages/`: one component per tab.
 
 ## Deployment
