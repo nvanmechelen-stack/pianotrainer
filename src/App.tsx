@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { NavBar } from './components/NavBar'
 import { Explorer } from './pages/Explorer'
 import { ComingSoon } from './pages/ComingSoon'
+import { Flashcards } from './pages/Flashcards'
 
 export default function App() {
   return (
@@ -11,20 +12,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/explorer" replace />} />
           <Route path="/explorer" element={<Explorer />} />
-          <Route
-            path="/flashcards"
-            element={
-              <ComingSoon
-                title="Flashcards"
-                intro="Quick recall of voicings, one card at a time."
-                points={[
-                  'A card shows a chord and voicing, e.g. “E♭m7 · Rootless B”.',
-                  'Play or tap the notes on the keyboard, or flip the card to check.',
-                  'Cards you miss come back sooner (spaced repetition) across all 12 keys.',
-                ]}
-              />
-            }
-          />
+          <Route path="/flashcards" element={<Flashcards />} />
           <Route
             path="/flow"
             element={

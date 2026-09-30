@@ -1,7 +1,7 @@
 import { CHORD_TYPES, type ChordId, type ChordType } from './chords'
 import { INTERVALS as I, type Interval, noteName, pitchClass, type SpelledNote, transpose } from './notes'
 
-export type VoicingStyle = 'shell' | 'rootless' | 'drop2'
+export type VoicingStyle = 'closed' | 'shell' | 'rootless' | 'drop2'
 
 export interface VoicedNote {
   midi: number
@@ -27,7 +27,12 @@ export interface StyleInfo {
 
 const labels = (ivs: Interval[]) => ivs.map((i) => i.label).join('-')
 
+const INVERSIONS = ['Root pos.', '1st inv.', '2nd inv.', '3rd inv.']
+const INVERSION_NAMES = ['Root position', '1st inversion', '2nd inversion', '3rd inversion']
+
 export const VOICING_STYLES: StyleInfo[] = [
+  // Variant i is the i-th inversion: closedChord[i] in the bass.
+  { id: 'closed', label: 'Closed', variants: () => INVERSIONS },
   {
     id: 'shell',
     label: 'Basic Shell',
@@ -40,7 +45,7 @@ export const VOICING_STYLES: StyleInfo[] = [
     // Variant i has seventhChord[i] in the bass.
     variants: (c) =>
       c.seventhChord[0] === I.R
-        ? ['Root pos.', '1st inv.', '2nd inv.', '3rd inv.']
+        ? INVERSIONS
         : c.seventhChord.map((iv) => `${iv.label} bass`),
   },
 ]
@@ -120,6 +125,7 @@ function placeRoot(rootPc: number, lowestOffset: number, low: number): number {
 }
 
 // Register targets for the lowest played note (MIDI numbers).
+const LOW_CLOSED = 48 // C3
 const LOW_SHELL = 43 // G2
 const LOW_ROOTLESS = 50 // D3
 const LOW_DROP2 = 48 // C3
@@ -142,6 +148,25 @@ export function buildVoicing(
 ): Voicing {
   const chord = CHORD_TYPES[chordId]
   const symbol = noteName(root) + chord.symbol
+
+  if (style === 'closed') {
+    const inversion = Math.min(Math.max(variant, 0), 3)
+    const tones = chord.closedChord
+    const ivs = [...tones.slice(inversion), ...tones.slice(0, inversion)]
+    const notes = voiceNotes(root, ivs, stackAscending(ivs), LOW_CLOSED)
+    return {
+      notes,
+      symbol,
+      title: `Closed · ${INVERSION_NAMES[inversion]} (${labels(ivs)})`,
+      description:
+        'All four chord tones stacked as close together as possible. ' +
+        (inversion === 0
+          ? 'In root position the root is in the bass: the textbook shape to learn every chord from.'
+          : `In the ${INVERSION_NAMES[inversion].toLowerCase()} the ${ivs[0].label} is in the bass. ` +
+            'Inversions let you move between chords with small steps instead of jumps.') +
+        (chordId === '7alt' ? ' For 7alt the ♭13 (= ♯5) replaces the 5th, a 7♯5 sound.' : ''),
+    }
+  }
 
   if (style === 'shell') {
     const ivs = shellForms(chordId)[variant] ?? shellForms(chordId)[0]
@@ -198,7 +223,7 @@ export function buildVoicing(
     order.map((i) => offsets[i]),
     LOW_DROP2,
   )
-  const invName = VOICING_STYLES[2].variants(chord)[inversion]
+  const invName = VOICING_STYLES.find((st) => st.id === 'drop2')!.variants(chord)[inversion]
   return {
     notes,
     symbol,
@@ -208,5 +233,31 @@ export function buildVoicing(
       `The chord spreads over a wider range: here the ${ivs[0].label} is in the bass and the ${ivs[3].label} on top. ` +
       'Great for two-handed comping and for harmonizing a melody note on top.' +
       (chordId === '7alt' ? ' For 7alt the rootless set 3-♭13-♭7-♭9 is used, so the altered colour stays intact.' : ''),
+  }
+}
+
+export interface VoicingName {
+  /** e.g. "Rootless Form B" */
+  name: string
+  /** e.g. "starting on the ♭7" */
+  detail: string
+}
+
+/** How a voicing is named in an assignment: "Rootless Form B (starting on the ♭7)". */
+export function describeVoicing(chordId: ChordId, style: VoicingStyle, variant: number): VoicingName {
+  const probe = buildVoicing({ letter: 'C', acc: 0 }, chordId, style, variant).notes.filter((n) => !n.isBass)
+  const lowest = probe[0].interval.label
+  const inBass = `${lowest} in the bass`
+  switch (style) {
+    case 'closed':
+      return { name: INVERSION_NAMES[variant], detail: inBass }
+    case 'shell':
+      return { name: 'Basic Shell', detail: probe.map((n) => n.interval.label).join('-') }
+    case 'rootless':
+      return { name: `Rootless Form ${variant === 1 ? 'B' : 'A'}`, detail: `starting on the ${lowest}` }
+    case 'drop2': {
+      const hasRoot = CHORD_TYPES[chordId].seventhChord[0] === I.R
+      return { name: hasRoot ? `Drop-2 ${INVERSION_NAMES[variant]}` : 'Drop-2', detail: inBass }
+    }
   }
 }
