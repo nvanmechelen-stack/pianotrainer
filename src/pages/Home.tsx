@@ -37,6 +37,7 @@ const SECTIONS: Section[] = [
     points: [
       'Get an assignment like “Play F7 – Rootless Form B” and try it on your own piano first.',
       'Reveal the solution to check your fingers, then mark it “Got it” or “Practice again”.',
+      'Away from the piano? Switch to “On screen” and build the chord by tapping the keys.',
       'Rounds of 20 cards end with your score and the forms that need more work.',
     ],
     ready: true,

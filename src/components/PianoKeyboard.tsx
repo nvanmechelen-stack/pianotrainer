@@ -3,8 +3,11 @@ import { isBlack, whiteIndex } from '../theory/keyboard'
 
 export interface KeyHighlight {
   midi: number
+  /** Empty string: colour only, no label. */
   label: string
   color: string
+  /** Draw only a coloured outline (e.g. a key that is still missing). */
+  outline?: boolean
 }
 
 interface Props {
@@ -41,6 +44,7 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
   }
 
   const renderLabel = (h: KeyHighlight, cx: number, cy: number, black: boolean) => {
+    if (!h.label) return null
     const r = black ? 25 : 33
     const size = (black ? 24 : 30) * (h.label.length > 2 ? 0.8 : 1)
     return (
@@ -83,7 +87,10 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
               width={WHITE_W - 4}
               height={WHITE_H - 2}
               rx={10}
-              fill={h ? h.color : '#f4f3fb'}
+              fill={h && !h.outline ? h.color : '#f4f3fb'}
+              stroke={h?.outline ? h.color : undefined}
+              strokeWidth={h?.outline ? 10 : undefined}
+              strokeDasharray={h?.outline ? '18 10' : undefined}
               opacity={pressed === m ? 0.75 : 1}
             />
             {!h && m % 12 === 0 && (
@@ -115,9 +122,10 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
               width={BLACK_W}
               height={BLACK_H}
               rx={8}
-              fill={h ? h.color : '#1d1b3a'}
-              stroke="#12112a"
-              strokeWidth={4}
+              fill={h && !h.outline ? h.color : '#1d1b3a'}
+              stroke={h?.outline ? h.color : '#12112a'}
+              strokeWidth={h?.outline ? 8 : 4}
+              strokeDasharray={h?.outline ? '14 8' : undefined}
               opacity={pressed === m ? 0.75 : 1}
             />
             {h && renderLabel(h, x + BLACK_W / 2, BLACK_H - 42, true)}
