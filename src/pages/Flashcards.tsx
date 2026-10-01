@@ -20,10 +20,16 @@ import {
 import { CHORD_ORDER, CHORD_TYPES, type ChordId, rootFor } from '../theory/chords'
 import { noteName } from '../theory/notes'
 import { buildVoicing } from '../theory/voicings'
+import { TapAnswer } from './TapAnswer'
+import { Segmented } from '../components/Segmented'
 
 // Settings survive visits (localStorage); the running round lives as long as the tab (sessionStorage).
 const SETTINGS_KEY = 'pianotrainer.flashcards.settings'
 const ROUND_KEY = 'pianotrainer.flashcards.round'
+const MODE_KEY = 'pianotrainer.flashcards.mode'
+
+/** "piano": play on your own piano, then reveal. "screen": build the chord on the on-screen keyboard. */
+type AnswerMode = 'piano' | 'screen'
 
 function load<T>(storage: () => Storage, key: string): T | null {
   try {
@@ -102,20 +108,26 @@ export function Flashcards() {
   const [revealed, setRevealed] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [labelMode, setLabelMode] = useState<LabelMode>('degree')
+  // Bumped per answered card so the on-screen answer starts fresh, even when a card repeats.
+  const [step, setStep] = useState(0)
+  const [mode, setMode] = useState<AnswerMode>(() => load<AnswerMode>(local, MODE_KEY) ?? 'piano')
 
   useEffect(() => save(local, SETTINGS_KEY, settings), [settings])
   useEffect(() => save(session, ROUND_KEY, round), [round])
+  useEffect(() => save(local, MODE_KEY, mode), [mode])
 
   const current = round.queue[0]
   const voicing = current ? cardVoicing(current.card) : null
   const finished = isFinished(round)
 
   const updateSettings = (next: DeckSettings) => {
+    setStep((n) => n + 1)
     setSettings(next)
     setRound(newRound(cardPool(next)))
     setRevealed(false)
   }
   const restart = () => {
+    setStep((n) => n + 1)
     setRound(newRound(pool))
     setRevealed(false)
   }
@@ -138,7 +150,7 @@ export function Flashcards() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey || showSettings || finished) return
+      if (e.metaKey || e.ctrlKey || e.altKey || showSettings || finished || mode !== 'piano') return
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault()
         if (!revealed) reveal()
@@ -153,7 +165,7 @@ export function Flashcards() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [revealed, reveal, respond, voicing, showSettings, finished])
+  }, [revealed, reveal, respond, voicing, showSettings, finished, mode])
 
   const title = current ? cardTitle(current.card) : null
   const progress = Math.min(round.answered + (current && !current.retry ? 1 : 0), ROUND_SIZE)
@@ -161,9 +173,9 @@ export function Flashcards() {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-3 p-3 sm:p-4 short:gap-2 short:p-2">
       {/* Status bar */}
-      <section className="flex items-center gap-3 rounded-3xl border border-line bg-panel p-2.5 shadow-lg short:rounded-2xl short:p-1.5">
-        <div className="min-w-0 flex-1 px-1">
-          <div className="flex justify-between text-xs font-black text-muted">
+      <section className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-3xl border border-line bg-panel p-2.5 shadow-lg short:rounded-2xl short:p-1.5">
+        <div className="min-w-[9rem] flex-1 px-1">
+          <div className="flex justify-between text-xs font-black whitespace-nowrap text-muted">
             <span>
               Card {progress} / {ROUND_SIZE}
             </span>
@@ -176,6 +188,18 @@ export function Flashcards() {
             />
           </div>
         </div>
+        <Segmented
+          className="order-last w-full sm:order-none sm:w-auto"
+          options={[
+            { value: 'piano', label: 'At piano' },
+            { value: 'screen', label: 'On screen' },
+          ]}
+          value={mode}
+          onChange={(m: AnswerMode) => {
+            setMode(m)
+            setRevealed(false)
+          }}
+        />
         <button
           type="button"
           onClick={() => setShowSettings((s) => !s)}
@@ -282,51 +306,67 @@ export function Flashcards() {
 
             {/* Keyboard */}
             <section className="rounded-3xl border border-line bg-panel p-2.5 shadow-lg short:rounded-2xl short:p-1.5">
-              <VoicingKeyboard
-                voicing={revealed ? voicing : null}
-                labelMode={labelMode}
-                keyboardClassName="max-h-[45dvh] short:max-h-[40dvh]"
-              />
-              <div className="mt-2 flex flex-wrap items-center justify-end gap-2 short:mt-1">
-                {revealed ? (
-                  <>
-                    <LabelToggle value={labelMode} onChange={setLabelMode} />
+              {mode === 'screen' && voicing ? (
+                <TapAnswer
+                  key={step}
+                  voicing={voicing}
+                  labelMode={labelMode}
+                  onLabelModeChange={setLabelMode}
+                  disabled={showSettings}
+                  onDone={(gotIt) => {
+                    setRound((r) => answer(r, gotIt))
+                    setStep((n) => n + 1)
+                  }}
+                />
+              ) : (
+                <>
+                <VoicingKeyboard
+                  voicing={revealed ? voicing : null}
+                  labelMode={labelMode}
+                  keyboardClassName="max-h-[45dvh] short:max-h-[40dvh]"
+                />
+                <div className="mt-2 flex flex-wrap items-center justify-end gap-2 short:mt-1">
+                  {revealed ? (
+                    <>
+                      <LabelToggle value={labelMode} onChange={setLabelMode} />
+                      <button
+                        type="button"
+                        onClick={() => voicing && playChord(voicing.notes.map((n) => n.midi))}
+                        aria-label="Play again"
+                        className="rounded-2xl bg-panel-2 px-3 py-2 active:scale-95 short:py-1.5"
+                      >
+                        <PlayIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => respond(false)}
+                        className="rounded-2xl bg-[#ff6b6b]/20 px-4 py-2 text-sm font-black text-[#ff8f8f] active:scale-95 short:py-1.5"
+                      >
+                        Practice again
+                        <Kbd>←</Kbd>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => respond(true)}
+                        className="rounded-2xl bg-[#38d9a9] px-5 py-2 text-sm font-black text-ink active:scale-95 short:py-1.5"
+                      >
+                        Got it
+                        <Kbd>→</Kbd>
+                      </button>
+                    </>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => voicing && playChord(voicing.notes.map((n) => n.midi))}
-                      aria-label="Play again"
-                      className="rounded-2xl bg-panel-2 px-3 py-2 active:scale-95 short:py-1.5"
+                      onClick={reveal}
+                      className="w-full rounded-2xl bg-gradient-to-br from-accent to-accent-2 px-5 py-2.5 text-base font-black shadow active:scale-[0.98] short:py-1.5 sm:w-auto"
                     >
-                      <PlayIcon className="h-4 w-4" />
+                      Show solution
+                      <Kbd>Space</Kbd>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => respond(false)}
-                      className="rounded-2xl bg-[#ff6b6b]/20 px-4 py-2 text-sm font-black text-[#ff8f8f] active:scale-95 short:py-1.5"
-                    >
-                      Practice again
-                      <Kbd>←</Kbd>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => respond(true)}
-                      className="rounded-2xl bg-[#38d9a9] px-5 py-2 text-sm font-black text-ink active:scale-95 short:py-1.5"
-                    >
-                      Got it
-                      <Kbd>→</Kbd>
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={reveal}
-                    className="w-full rounded-2xl bg-gradient-to-br from-accent to-accent-2 px-5 py-2.5 text-base font-black shadow active:scale-[0.98] short:py-1.5 sm:w-auto"
-                  >
-                    Show solution
-                    <Kbd>Space</Kbd>
-                  </button>
-                )}
-              </div>
+                  )}
+                </div>
+                </>
+              )}
             </section>
           </>
         )

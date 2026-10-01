@@ -7,6 +7,7 @@ Tabs:
 - **Home**: a welcome page explaining each section, a suggested practice path and the key colours.
 - **Explorer**: pick a root, chord type (m7, 7, maj7, m7♭5, 7alt) and voicing (Closed with inversions, Basic Shell, Rootless A/B, Drop-2) and see it on the keyboard.
 - **Flashcards**: rounds of 20 assignments ("Play F7 – Rootless Form B"). Try it on your piano, reveal the solution, then mark it *Got it* or *Practice again* (the card comes back a few cards later). Keyboard: Space = show solution, → = got it, ← = practice again.
+  - *On screen* mode (for practising away from the piano): tap the keys to build the voicing, then **Check**. The shape must be exact (notes, order and spacing) but may be in any octave; the bass of a rootless voicing is optional. Tap a key again, **Undo** (⌫) or **Clear** (Esc) to correct; Enter = check.
 - **ii-V-I Flow**, **Speed Trainer**: coming soon.
 
 ## Development
