@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { playChord, playNote } from '../audio/piano'
+import { Kbd } from '../components/Controls'
 import { PlayIcon } from '../components/Icons'
 import { type KeyHighlight, PianoKeyboard } from '../components/PianoKeyboard'
 import { ROLE_COLORS } from '../components/roleColors'
@@ -31,18 +32,23 @@ interface Props {
   onDone: (gotIt: boolean) => void
   /** Ignore keyboard shortcuts (e.g. while settings are open). */
   disabled?: boolean
-}
-
-function Kbd({ children }: { children: React.ReactNode }) {
-  return (
-    <kbd className="ml-1.5 hidden rounded-md bg-white/15 px-1.5 py-0.5 font-sans text-[10px] font-black [@media(hover:hover)]:inline">
-      {children}
-    </kbd>
-  )
+  /** Free practice: no "comes back later" messages. */
+  freePractice?: boolean
+  /** Keys shown underneath while building, e.g. the previous chord. */
+  context?: KeyHighlight[]
 }
 
 /** "On screen" answering: build the voicing by tapping keys, then check it. */
-export function TapAnswer({ voicing, labelMode, onLabelModeChange, isRepeat, onDone, disabled }: Props) {
+export function TapAnswer({
+  voicing,
+  labelMode,
+  onLabelModeChange,
+  isRepeat,
+  onDone,
+  disabled,
+  freePractice,
+  context = [],
+}: Props) {
   const [selected, setSelected] = useState<number[]>([])
   const [result, setResult] = useState<CheckResult | null>(null)
   const [phase, setPhase] = useState<Phase>('editing')
@@ -154,6 +160,7 @@ export function TapAnswer({ voicing, labelMode, onLabelModeChange, isRepeat, onD
     }
   } else {
     for (const m of selected) highlights.push({ midi: m, label: '', color: SELECTED })
+    for (const h of context) if (!selected.includes(h.midi)) highlights.push(h)
   }
 
   let message: React.ReactNode = rootless
@@ -161,10 +168,16 @@ export function TapAnswer({ voicing, labelMode, onLabelModeChange, isRepeat, onD
     : 'Tap the keys of the voicing. Tap a key again to remove it.'
   let tone = 'text-muted'
   if (phase === 'correct') {
-    message = !missed ? 'Correct! 🎉' : isRepeat ? 'Correct now! This one is done.' : 'Correct now! This card will come back later.'
+    message = !missed
+      ? 'Correct! 🎉'
+      : freePractice
+        ? 'Correct now!'
+        : isRepeat
+          ? 'Correct now! This one is done.'
+          : 'Correct now! This card will come back later.'
     tone = 'text-[#38d9a9]'
   } else if (phase === 'solution') {
-    message = 'Here is the solution. This card will come back later.'
+    message = freePractice ? 'Here is the solution.' : 'Here is the solution. This card will come back later.'
     tone = 'text-[#ffc233]'
   } else if (result) {
     const counts = Object.values(result.marks)

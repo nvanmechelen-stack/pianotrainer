@@ -48,10 +48,11 @@ const SECTIONS: Section[] = [
     tagline: 'Voice leading',
     icon: FlowIcon,
     points: [
-      'Move through ii–V–I progressions in all 12 keys, in major and minor.',
-      'See how rootless A and B forms connect with almost no hand movement.',
+      'Listen and watch a ii–V–I in time, or practise it chord by chord, at the piano or on screen.',
+      'Each key goes a whole step down: the I chord turns into the next ii (Cmaj7 → Cm7).',
+      'Markers show which notes stay and how far the others move: = ↓½ ↑1.',
     ],
-    ready: false,
+    ready: true,
   },
   {
     path: '/speed',

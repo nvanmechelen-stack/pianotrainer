@@ -1,6 +1,6 @@
 import { INTERVALS as I, type Interval, parseNote, type SpelledNote } from './notes'
 
-export type ChordId = 'm7' | '7' | 'maj7' | 'm7b5' | '7alt'
+export type ChordId = 'm7' | '7' | 'maj7' | 'm7b5' | '7alt' | 'm69'
 
 export interface ChordType {
   id: ChordId
@@ -72,9 +72,19 @@ export const CHORD_TYPES: Record<ChordId, ChordType> = {
     seventhChord: [I.M3, I.b13, I.b7, I.b9],
     roots: ALT_ROOTS,
   },
+  m69: {
+    id: 'm69',
+    label: 'm6/9',
+    symbol: 'm6/9',
+    name: 'Minor 6/9',
+    // The minor tonic: Cm6 = C E♭ G A.
+    closedChord: [I.R, I.b3, I.P5, I.M6],
+    seventhChord: [I.R, I.b3, I.P5, I.M6],
+    roots: MINOR_ROOTS,
+  },
 }
 
-export const CHORD_ORDER: ChordId[] = ['m7', '7', 'maj7', 'm7b5', '7alt']
+export const CHORD_ORDER: ChordId[] = ['m7', '7', 'maj7', 'm7b5', '7alt', 'm69']
 
 /** Root spelling for pitch class `pc` (0 = C) in the context of this chord type. */
 export function rootFor(chord: ChordType, pc: number): SpelledNote {

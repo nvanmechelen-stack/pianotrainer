@@ -55,6 +55,8 @@ function guideTones(id: ChordId): [Interval, Interval] {
     case 'm7':
     case 'm7b5':
       return [I.b3, I.b7]
+    case 'm69':
+      return [I.b3, I.M6]
     case 'maj7':
       return [I.M3, I.M7]
     case '7':
@@ -97,6 +99,11 @@ const ROOTLESS: Record<ChordId, { A: Interval[]; B: Interval[]; note: string }> 
     A: [I.M3, I.b13, I.b7, I.b9],
     B: [I.b7, I.b9, I.M3, I.b13],
     note: 'The ♭9 and ♭13 make this the natural V in a minor ii–V–i, following a m7♭5.',
+  },
+  m69: {
+    A: [I.b3, I.P5, I.M6, I.N9],
+    B: [I.M6, I.N9, I.b3, I.P5],
+    note: 'The classic minor tonic: the 6 takes the place of the ♭7 and the 9 adds colour.',
   },
 }
 

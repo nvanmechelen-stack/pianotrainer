@@ -68,6 +68,8 @@ export const INTERVALS = {
   M3: iv(3, 4, '3', 'third'),
   b5: iv(5, 6, '♭5', 'fifth'),
   P5: iv(5, 7, '5', 'fifth'),
+  // The 6 of a minor 6/9 chord takes the 7th's place.
+  M6: iv(6, 9, '6', 'seventh'),
   b7: iv(7, 10, '♭7', 'seventh'),
   M7: iv(7, 11, '7', 'seventh'),
   b9: iv(9, 13, '♭9', 'tension'),

@@ -62,3 +62,18 @@ export function playChord(midis: number[], arpeggio = false): void {
   const sorted = [...midis].sort((a, b) => a - b)
   sorted.forEach((m, i) => playNote(m, arpeggio ? i * 0.14 : i * 0.008, 0.7))
 }
+
+/** Metronome tick; `accent` for the first beat of a bar. */
+export function playClick(accent = false, delay = 0): void {
+  const { ctx, master } = audio()
+  const t = ctx.currentTime + delay
+  const osc = ctx.createOscillator()
+  const env = ctx.createGain()
+  osc.frequency.value = accent ? 1760 : 1320
+  env.gain.setValueAtTime(0.0001, t)
+  env.gain.exponentialRampToValueAtTime(accent ? 0.35 : 0.22, t + 0.002)
+  env.gain.exponentialRampToValueAtTime(0.0001, t + 0.05)
+  osc.connect(env).connect(master)
+  osc.start(t)
+  osc.stop(t + 0.06)
+}
