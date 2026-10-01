@@ -13,6 +13,7 @@ import {
   EASY_ROOTS,
   hardestCards,
   isFinished,
+  repeatsLeft,
   newRound,
   type Round,
   ROUND_SIZE,
@@ -169,6 +170,7 @@ export function Flashcards() {
 
   const title = current ? cardTitle(current.card) : null
   const progress = Math.min(round.answered + (current && !current.retry ? 1 : 0), ROUND_SIZE)
+  const toRepeat = repeatsLeft(round)
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-3 p-3 sm:p-4 short:gap-2 short:p-2">
@@ -178,6 +180,7 @@ export function Flashcards() {
           <div className="flex justify-between text-xs font-black whitespace-nowrap text-muted">
             <span>
               Card {progress} / {ROUND_SIZE}
+              {toRepeat > 0 && <span className="text-[#ffc233]"> · {toRepeat} to repeat</span>}
             </span>
             <span className="text-[#38d9a9]">✓ {round.correct}</span>
           </div>
@@ -312,6 +315,7 @@ export function Flashcards() {
                   voicing={voicing}
                   labelMode={labelMode}
                   onLabelModeChange={setLabelMode}
+                  isRepeat={current.retry}
                   disabled={showSettings}
                   onDone={(gotIt) => {
                     setRound((r) => answer(r, gotIt))

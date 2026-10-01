@@ -118,6 +118,9 @@ export function answer(round: Round, gotIt: boolean, rng: Rng = Math.random): Ro
 
 export const isFinished = (r: Round) => r.queue.length === 0
 
+/** Missed cards still waiting to be repeated (including the current card if it is a repeat). */
+export const repeatsLeft = (r: Round) => r.queue.filter((q) => q.retry).length
+
 /** Cards that needed practice, hardest first. */
 export function hardestCards(r: Round): { card: Card; misses: number }[] {
   return Object.entries(r.misses)

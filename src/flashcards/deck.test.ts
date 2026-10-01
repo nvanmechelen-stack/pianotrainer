@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { answer, cardKey, cardPool, cardTitle, DEFAULT_SETTINGS, hardestCards, isFinished, newRound, ROUND_SIZE } from './deck'
+import {
+  answer,
+  cardKey,
+  cardPool,
+  cardTitle,
+  DEFAULT_SETTINGS,
+  hardestCards,
+  isFinished,
+  newRound,
+  repeatsLeft,
+  ROUND_SIZE,
+} from './deck'
 
 // Deterministic pseudo-random numbers for repeatable tests.
 function seeded(seed = 1) {
@@ -41,6 +52,22 @@ describe('card titles', () => {
 })
 
 describe('rounds', () => {
+  it('keeps a missed repeat coming back until it is answered right', () => {
+    const rng = seeded(5)
+    let r = newRound(cardPool(DEFAULT_SETTINGS), rng)
+    r = answer(r, false, rng)
+    // Answer right until the repeat is at the head, then miss it again.
+    while (!r.queue[0].retry) r = answer(r, true, rng)
+    const key = cardKey(r.queue[0].card)
+    r = answer(r, false, rng)
+    expect(repeatsLeft(r)).toBe(1)
+    expect(r.misses[key]).toBe(2)
+    while (!r.queue[0].retry) r = answer(r, true, rng)
+    r = answer(r, true, rng)
+    expect(repeatsLeft(r)).toBe(0)
+    expect(r.correct).toBe(r.answered - 1)
+  })
+
   it('deals ROUND_SIZE cards, never the same card twice in a row', () => {
     const small = cardPool({ ...DEFAULT_SETTINGS, chords: ['m7'], roots: [0, 2, 5] })
     const r = newRound(small, seeded(7))
@@ -59,10 +86,12 @@ describe('rounds', () => {
     expect(back).toBeGreaterThanOrEqual(3)
     expect(back).toBeLessThanOrEqual(5)
     expect(r.queue[back].card).toEqual(missed)
+    expect(repeatsLeft(r)).toBe(1)
 
     let steps = 0
     while (!isFinished(r) && steps++ < 100) r = answer(r, true, rng)
     expect(isFinished(r)).toBe(true)
+    expect(repeatsLeft(r)).toBe(0)
     expect(r.answered).toBe(ROUND_SIZE)
     expect(r.correct).toBe(ROUND_SIZE - 1)
     expect(hardestCards(r)).toEqual([{ card: missed, misses: 1 }])

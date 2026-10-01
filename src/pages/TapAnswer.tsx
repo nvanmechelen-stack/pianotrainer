@@ -22,7 +22,12 @@ interface Props {
   voicing: Voicing
   labelMode: LabelMode
   onLabelModeChange: (m: LabelMode) => void
-  /** Called when the card is finished; gotIt = right on the first Check, no solution shown. */
+  /** This card is a repeat of one missed earlier in the round. */
+  isRepeat?: boolean
+  /**
+   * Called when the card is finished. gotIt: a new card must be right on the first Check;
+   * a repeat only has to be solved without Show solution (fixing it after a wrong Check counts).
+   */
   onDone: (gotIt: boolean) => void
   /** Ignore keyboard shortcuts (e.g. while settings are open). */
   disabled?: boolean
@@ -37,7 +42,7 @@ function Kbd({ children }: { children: React.ReactNode }) {
 }
 
 /** "On screen" answering: build the voicing by tapping keys, then check it. */
-export function TapAnswer({ voicing, labelMode, onLabelModeChange, onDone, disabled }: Props) {
+export function TapAnswer({ voicing, labelMode, onLabelModeChange, isRepeat, onDone, disabled }: Props) {
   const [selected, setSelected] = useState<number[]>([])
   const [result, setResult] = useState<CheckResult | null>(null)
   const [phase, setPhase] = useState<Phase>('editing')
@@ -103,8 +108,8 @@ export function TapAnswer({ voicing, labelMode, onLabelModeChange, onDone, disab
   }, [finished, selected, target, bass])
 
   const next = useCallback(() => {
-    if (finished) onDone(phase === 'correct' && !missed)
-  }, [finished, onDone, phase, missed])
+    if (finished) onDone(phase === 'correct' && (isRepeat || !missed))
+  }, [finished, onDone, phase, missed, isRepeat])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -156,7 +161,7 @@ export function TapAnswer({ voicing, labelMode, onLabelModeChange, onDone, disab
     : 'Tap the keys of the voicing. Tap a key again to remove it.'
   let tone = 'text-muted'
   if (phase === 'correct') {
-    message = missed ? 'Correct now! This card will come back later.' : 'Correct! 🎉'
+    message = !missed ? 'Correct! 🎉' : isRepeat ? 'Correct now! This one is done.' : 'Correct now! This card will come back later.'
     tone = 'text-[#38d9a9]'
   } else if (phase === 'solution') {
     message = 'Here is the solution. This card will come back later.'
