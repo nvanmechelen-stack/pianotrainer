@@ -7,7 +7,7 @@ export function Chip({ on, onClick, children }: { on: boolean; onClick: () => vo
       onClick={onClick}
       aria-pressed={on}
       className={`rounded-xl px-2.5 py-1.5 text-sm font-black transition-colors short:py-1 short:text-xs ${
-        on ? 'bg-gradient-to-br from-accent to-accent-2 text-white shadow' : 'bg-ink/60 text-muted hover:bg-panel-2 hover:text-white'
+        on ? 'bg-brand text-white shadow' : 'bg-ink/60 text-muted hover:bg-panel-2 hover:text-white'
       }`}
     >
       {children}

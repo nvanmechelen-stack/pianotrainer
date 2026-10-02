@@ -40,7 +40,7 @@ export function Explorer() {
               onClick={() => setRootPc(pc)}
               className={`rounded-xl py-1.5 text-sm font-black transition-colors short:py-1 short:text-xs ${
                 pc === rootPc
-                  ? 'bg-gradient-to-br from-accent to-accent-2 text-white shadow'
+                  ? 'bg-brand text-white shadow'
                   : 'bg-ink/60 text-muted hover:bg-panel-2 hover:text-white'
               }`}
             >
@@ -50,13 +50,13 @@ export function Explorer() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Segmented
-            className="min-w-[16rem] flex-1 short:min-w-0"
+            className="min-w-[19rem] flex-1 short:min-w-[17rem]"
             options={CHORD_ORDER.map((id) => ({ value: id, label: CHORD_TYPES[id].label }))}
             value={chordId}
             onChange={setChordId}
           />
           <Segmented
-            className="min-w-[16rem] flex-1 short:min-w-0"
+            className="min-w-[21rem] flex-1 short:min-w-[19rem]"
             options={VOICING_STYLES.map((s) => ({ value: s.id, label: s.label }))}
             value={style}
             onChange={changeStyle}
@@ -81,7 +81,7 @@ export function Explorer() {
           <button
             type="button"
             onClick={() => playChord(midis)}
-            className="flex items-center gap-1.5 rounded-2xl bg-gradient-to-br from-accent to-accent-2 px-3 py-2 text-sm font-black shadow active:scale-95 short:py-1"
+            className="flex items-center gap-1.5 rounded-2xl bg-brand px-3 py-2 text-sm font-black shadow active:scale-95 short:py-1"
           >
             <PlayIcon className="h-4 w-4" /> Play
           </button>
@@ -112,7 +112,7 @@ export function Explorer() {
             </span>
           ))}
         </div>
-        <p className="mt-2 text-sm leading-relaxed text-[#d6d4f2]">{voicing.description}</p>
+        <p className="mt-2 text-sm leading-relaxed text-body">{voicing.description}</p>
       </section>
     </div>
   )

@@ -118,9 +118,9 @@ export function Flashcards() {
           <div className="flex justify-between text-xs font-black whitespace-nowrap text-muted">
             <span>
               Card {progress} / {ROUND_SIZE}
-              {toRepeat > 0 && <span className="text-[#ffc233]"> · {toRepeat} to repeat</span>}
+              {toRepeat > 0 && <span className="text-warning"> · {toRepeat} to repeat</span>}
             </span>
-            <span className="text-[#38d9a9]">✓ {round.correct}</span>
+            <span className="text-success">✓ {round.correct}</span>
           </div>
           <div className="mt-1 h-2 overflow-hidden rounded-full bg-ink/60">
             <div
@@ -235,7 +235,7 @@ export function Flashcards() {
               </p>
               <p className="flex flex-wrap items-baseline justify-center gap-x-3">
                 {current.retry && (
-                  <span className="hidden text-xs font-black text-[#ff8f8f] uppercase short:inline">Again</span>
+                  <span className="hidden text-xs font-black text-danger uppercase short:inline">Again</span>
                 )}
                 <span className="text-4xl font-black short:text-3xl">{title.symbol}</span>
                 <span className="text-xl font-black text-accent-2 short:text-lg">{title.name}</span>
@@ -282,7 +282,7 @@ export function Flashcards() {
                       <button
                         type="button"
                         onClick={() => respond(false)}
-                        className="rounded-2xl bg-[#ff6b6b]/20 px-4 py-2 text-sm font-black text-[#ff8f8f] active:scale-95 short:py-1.5"
+                        className="rounded-2xl bg-danger/20 px-4 py-2 text-sm font-black text-danger active:scale-95 short:py-1.5"
                       >
                         Practice again
                         <Kbd>←</Kbd>
@@ -290,7 +290,7 @@ export function Flashcards() {
                       <button
                         type="button"
                         onClick={() => respond(true)}
-                        className="rounded-2xl bg-[#38d9a9] px-5 py-2 text-sm font-black text-ink active:scale-95 short:py-1.5"
+                        className="rounded-2xl bg-success px-5 py-2 text-sm font-black text-ink active:scale-95 short:py-1.5"
                       >
                         Got it
                         <Kbd>→</Kbd>
@@ -300,7 +300,7 @@ export function Flashcards() {
                     <button
                       type="button"
                       onClick={reveal}
-                      className="w-full rounded-2xl bg-gradient-to-br from-accent to-accent-2 px-5 py-2.5 text-base font-black shadow active:scale-[0.98] short:py-1.5 sm:w-auto"
+                      className="w-full rounded-2xl bg-brand px-5 py-2.5 text-base font-black shadow active:scale-[0.98] short:py-1.5 sm:w-auto"
                     >
                       Show solution
                       <Kbd>Space</Kbd>
@@ -338,19 +338,19 @@ function Summary({ round, onRestart }: { round: Round; onRestart: () => void }) 
                   <span className="font-black">{t.symbol}</span>
                   <span className="font-bold text-accent-2">{t.name}</span>
                   <span className="text-sm text-muted">({t.detail})</span>
-                  <span className="ml-auto text-sm font-black text-[#ff8f8f]">×{misses}</span>
+                  <span className="ml-auto text-sm font-black text-danger">×{misses}</span>
                 </li>
               )
             })}
           </ul>
         </>
       ) : (
-        <p className="mt-3 font-bold text-[#38d9a9]">Perfect round: everything right on the first try!</p>
+        <p className="mt-3 font-bold text-success">Perfect round: everything right on the first try!</p>
       )}
       <button
         type="button"
         onClick={onRestart}
-        className="mt-4 rounded-2xl bg-gradient-to-br from-accent to-accent-2 px-5 py-2.5 font-black shadow active:scale-95"
+        className="mt-4 rounded-2xl bg-brand px-5 py-2.5 font-black shadow active:scale-95"
       >
         New round
       </button>
