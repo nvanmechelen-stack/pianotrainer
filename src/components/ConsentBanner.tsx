@@ -29,7 +29,7 @@ export function ConsentBanner() {
       aria-label="Cookies"
       className="fixed inset-x-2 bottom-2 z-50 mx-auto flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-line bg-panel/95 p-3 text-sm shadow-2xl backdrop-blur portrait:bottom-24 md:portrait:bottom-2"
     >
-      <p className="min-w-0 flex-1 text-[#d6d4f2]">
+      <p className="min-w-0 flex-1 text-body">
         🍪 This site uses Google Analytics cookies only to count visits. Nothing else is tracked.
       </p>
       <div className="flex gap-2">
@@ -39,7 +39,7 @@ export function ConsentBanner() {
         <button
           type="button"
           onClick={() => choose('granted')}
-          className="rounded-xl bg-gradient-to-br from-accent to-accent-2 px-3 py-1.5 font-black shadow"
+          className="rounded-xl bg-brand px-3 py-1.5 font-black shadow"
         >
           Accept
         </button>

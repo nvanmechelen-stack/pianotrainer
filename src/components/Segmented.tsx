@@ -13,9 +13,9 @@ export function Segmented<T extends string | number>({ options, value, onChange,
           key={o.value}
           type="button"
           onClick={() => onChange(o.value)}
-          className={`flex-1 rounded-xl px-2.5 py-1.5 text-sm font-extrabold whitespace-nowrap transition-colors short:px-2 short:py-1 short:text-xs ${
+          className={`min-h-7 min-w-min flex-1 rounded-xl px-2 py-1.5 text-sm leading-tight font-extrabold transition-colors short:px-2 short:py-1 short:text-xs ${
             o.value === value
-              ? 'bg-gradient-to-br from-accent to-accent-2 text-white shadow'
+              ? 'bg-brand text-white shadow'
               : 'text-muted hover:bg-panel-2 hover:text-white'
           }`}
         >

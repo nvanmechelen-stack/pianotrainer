@@ -33,6 +33,14 @@ npm run build    # production build in dist/
 
 Visits are counted with Google Analytics (Firebase), and only if the visitor clicks *Accept* in the cookie banner. The Firebase SDK is loaded lazily after that choice and only on the live site (`pianotrainer-8e3da.web.app`), so previews and local testing don't count. Page views on tab changes come from GA4's enhanced measurement. See the numbers in the Firebase console under *Analytics*, or in Google Analytics (*Reports → Realtime* shows visits within a minute; other reports update within a day). *Cookie settings* at the bottom of the Home page asks again.
 
+## Error monitoring
+
+Production errors go to [Sentry](https://sentry.io) when a DSN is configured: add a repository variable `SENTRY_DSN` (Settings → Secrets and variables → Actions → *Variables*). The live deploy passes it to the build as `VITE_SENTRY_DSN`; without it, monitoring stays off. The SDK loads after the app has started and only on the live site; a React error boundary shows a friendly "Something went wrong" screen and reports the error.
+
+## SEO
+
+Each page sets its own title and description (`src/seo.ts`, checked by a test); `index.html` carries the Open Graph tags and `public/og-image.png` (1200×630). `public/sitemap.xml` lists every page and `public/robots.txt` points to it. Unknown addresses show a custom 404 page.
+
 ## Deployment
 
 GitHub Actions deploy to Firebase Hosting:

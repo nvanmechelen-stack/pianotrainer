@@ -3,7 +3,7 @@ import { playChord, playClick } from '../audio/piano'
 import { Chip, Kbd, Switch } from '../components/Controls'
 import { PlayIcon } from '../components/Icons'
 import { type KeyHighlight, PianoKeyboard } from '../components/PianoKeyboard'
-import { ROLE_COLORS, ROLE_LABELS } from '../components/roleColors'
+import { ROLE_COLORS, ROLE_LABELS, STATUS } from '../components/roleColors'
 import { Segmented } from '../components/Segmented'
 import { colorKey, LabelToggle, type LabelMode } from '../components/VoicingKeyboard'
 import {
@@ -59,7 +59,7 @@ const SETTINGS_KEY = 'pianotrainer.flow.settings.v2'
 const ALL_PCS = Array.from({ length: 12 }, (_, i) => i)
 const BEATS_PER_BAR = 4
 /** The previous chord, shown faintly so you can see where the voices come from. */
-const PREVIOUS = '#c9c5e8'
+const PREVIOUS = STATUS.previous
 
 const STYLE_LABELS: Record<FlowStyle, string> = { closed: 'Closed', rootless: 'Rootless', shell: 'Shells' }
 const ORDER_LABELS: Record<KeyOrder, string> = {
@@ -402,7 +402,7 @@ export function Flow() {
                 type="button"
                 onClick={() => goTo(at)}
                 className={`flex flex-1 flex-col items-center rounded-2xl px-2 py-1.5 transition-colors short:py-1 ${
-                  active ? 'bg-gradient-to-br from-accent to-accent-2 text-white shadow' : 'bg-ink/60 hover:bg-panel-2'
+                  active ? 'bg-brand text-white shadow' : 'bg-ink/60 hover:bg-panel-2'
                 }`}
               >
                 <span className="text-[10px] font-black tracking-widest opacity-70">
@@ -434,7 +434,7 @@ export function Flow() {
               <button
                 type="button"
                 onClick={() => update({ startPc: nextStart })}
-                className={`${btn} bg-gradient-to-br from-accent to-accent-2 px-5 shadow`}
+                className={`${btn} bg-brand px-5 shadow`}
               >
                 Next round: start on {keyLabel(settings.quality, nextStart)}
               </button>
@@ -519,7 +519,7 @@ export function Flow() {
                     <button
                       type="button"
                       onClick={playing ? stop : play}
-                      className={`${btn} flex items-center gap-1.5 bg-gradient-to-br from-accent to-accent-2 px-5 shadow`}
+                      className={`${btn} flex items-center gap-1.5 bg-brand px-5 shadow`}
                     >
                       {playing ? (
                         '■ Stop'
@@ -541,7 +541,7 @@ export function Flow() {
                     >
                       <PlayIcon className="h-4 w-4" />
                     </button>
-                    <button type="button" onClick={advance} className={`${btn} bg-[#38d9a9] px-5 text-ink`}>
+                    <button type="button" onClick={advance} className={`${btn} bg-success px-5 text-ink`}>
                       Next
                       <Kbd>→</Kbd>
                     </button>
@@ -550,7 +550,7 @@ export function Flow() {
                   <button
                     type="button"
                     onClick={reveal}
-                    className={`${btn} w-full bg-gradient-to-br from-accent to-accent-2 px-5 shadow sm:w-auto`}
+                    className={`${btn} w-full bg-brand px-5 shadow sm:w-auto`}
                   >
                     Show {current.symbol}
                     <Kbd>Space</Kbd>

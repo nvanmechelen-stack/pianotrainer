@@ -90,14 +90,14 @@ export function Home() {
           <h1 className="mt-1 bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-4xl font-black text-transparent short:text-3xl">
             Piano Trainer
           </h1>
-          <p className="mt-2 leading-relaxed text-[#d6d4f2]">
+          <p className="mt-2 leading-relaxed text-body">
             Learn the jazz piano voicings every pianist uses, from the first shell to Bill Evans rootless voicings,
             until your hands find them without thinking.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
               to="/explorer"
-              className="rounded-2xl bg-gradient-to-br from-accent to-accent-2 px-5 py-2.5 font-black shadow active:scale-95"
+              className="rounded-2xl bg-brand px-5 py-2.5 font-black shadow active:scale-95"
             >
               Start exploring
             </Link>
@@ -115,7 +115,7 @@ export function Home() {
               type="button"
               onClick={() => playChord(DEMO.notes.map((n) => n.midi))}
               aria-label="Play Dm9"
-              className="rounded-xl bg-gradient-to-br from-accent to-accent-2 p-2 active:scale-95"
+              className="rounded-xl bg-brand p-2 active:scale-95"
             >
               <PlayIcon className="h-4 w-4" />
             </button>
@@ -141,12 +141,12 @@ export function Home() {
                 <p className="text-xs font-extrabold tracking-wide text-muted uppercase">{tagline}</p>
               </div>
               {!ready && (
-                <span className="rounded-full bg-accent-2/20 px-2.5 py-1 text-[10px] font-black tracking-wide text-accent-2 uppercase">
+                <span className="rounded-full bg-accent-2/20 px-2.5 py-1 text-[10px] font-black tracking-wide text-accent-soft uppercase">
                   Soon
                 </span>
               )}
             </div>
-            <ul className="mt-3 flex-1 space-y-1.5 text-sm text-[#d6d4f2]">
+            <ul className="mt-3 flex-1 space-y-1.5 text-sm text-body">
               {points.map((p) => (
                 <li key={p} className="flex gap-2">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
@@ -168,7 +168,7 @@ export function Home() {
           <ol className="mt-3 grid gap-2 sm:grid-cols-2">
             {STEPS.map((s, i) => (
               <li key={s.title} className="flex gap-3 rounded-2xl bg-ink/50 p-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-2 text-sm font-black">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-black">
                   {i + 1}
                 </span>
                 <span>
@@ -201,7 +201,7 @@ export function Home() {
             resetConsent()
             window.dispatchEvent(new Event('pianotrainer:consent'))
           }}
-          className="font-bold underline hover:text-white"
+          className="inline-block px-1 py-2 font-bold underline hover:text-white"
         >
           Cookie settings
         </button>

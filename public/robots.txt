@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pianotrainer-8e3da.web.app/sitemap.xml

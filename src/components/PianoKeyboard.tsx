@@ -53,7 +53,8 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
         textAnchor="middle"
         fontSize={black ? 24 : 28}
         fontWeight={900}
-        fill={black ? '#ffffff' : '#12112a'}
+        // Highlighted keys are all light colours, so dark text reads on white and black keys alike.
+        fill="#12112a"
         fontFamily="Nunito, system-ui, sans-serif"
         pointerEvents="none"
       >
@@ -118,7 +119,7 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
                 textAnchor="middle"
                 fontSize={22}
                 fontWeight={700}
-                fill="#9a98b8"
+                fill="#676489"
                 fontFamily="Nunito, system-ui, sans-serif"
                 pointerEvents="none"
               >

@@ -12,6 +12,18 @@
   --color-muted: #9a98c8;
   --color-accent: #7c5cff;
   --color-accent-2: #ff5ca8;
+  /* Lighter pink for small text on a pink tint. */
+  --color-accent-soft: #ff8cc3;
+  /* Body text on panels, and status colours (right / wrong / missing). */
+  --color-body: #d6d4f2;
+  --color-success: #38d9a9;
+  --color-danger: #ff8f8f;
+  --color-warning: #ffc233;
+}
+
+/* Filled buttons: a slightly deeper gradient than the accents, so white text stays readable (WCAG AA). */
+@utility bg-brand {
+  background-image: linear-gradient(to bottom right, #6a48f5, #c42f7c);
 }
 
 html,
@@ -26,4 +38,25 @@ body {
   background-attachment: fixed;
   color: #f4f3ff;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Every control looks clickable, reacts to hover and shows keyboard focus. */
+button:not(:disabled),
+a {
+  cursor: pointer;
+}
+button:not(:disabled):hover {
+  filter: brightness(1.12);
+}
+button,
+a {
+  transition:
+    filter 120ms,
+    transform 120ms,
+    background-color 120ms,
+    color 120ms;
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent-soft);
+  outline-offset: 2px;
 }

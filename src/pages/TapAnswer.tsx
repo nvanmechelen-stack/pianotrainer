@@ -3,7 +3,7 @@ import { playChord, playNote } from '../audio/piano'
 import { Kbd } from '../components/Controls'
 import { PlayIcon } from '../components/Icons'
 import { type KeyHighlight, PianoKeyboard } from '../components/PianoKeyboard'
-import { ROLE_COLORS } from '../components/roleColors'
+import { ROLE_COLORS, STATUS } from '../components/roleColors'
 import { colorKey, type LabelMode, LabelToggle } from '../components/VoicingKeyboard'
 import { checkShape, type CheckResult } from '../flashcards/check'
 import { noteName, pitchClass } from '../theory/notes'
@@ -12,10 +12,7 @@ import type { VoicedNote, Voicing } from '../theory/voicings'
 /** C3–G5: the smallest window every voicing fits in, in at least one octave. */
 export const TAP_RANGE = { low: 48, high: 79 }
 
-const GREEN = '#38d9a9'
-const RED = '#ff6b6b'
-const AMBER = '#ffc233'
-const SELECTED = '#9b84ff'
+const { success: GREEN, danger: RED, warning: AMBER, selected: SELECTED } = STATUS
 
 type Phase = 'editing' | 'checked' | 'correct' | 'solution'
 
@@ -178,22 +175,25 @@ export function TapAnswer({
         : isRepeat
           ? 'Correct now! This one is done.'
           : 'Correct now! This card will come back later.'
-    tone = 'text-[#38d9a9]'
+    tone = 'text-success'
   } else if (phase === 'solution') {
     message = freePractice ? 'Here is the solution.' : 'Here is the solution. This card will come back later.'
-    tone = 'text-[#ffc233]'
+    tone = 'text-warning'
   } else if (result) {
     const counts = Object.values(result.marks)
     const right = counts.filter((m) => m === 'correct').length
     const wrong = counts.length - right
     message = `Not quite: ${right} right, ${wrong} wrong, ${result.missing.length} missing. Fix it and check again.`
-    tone = 'text-[#ff8f8f]'
+    tone = 'text-danger'
   }
 
   const btn = 'rounded-2xl px-3.5 py-2 text-sm font-black active:scale-95 disabled:opacity-40 short:py-1.5'
 
   return (
     <>
+      <p className="mb-2 hidden rounded-xl bg-ink/60 px-3 py-1.5 text-center text-xs font-bold text-muted portrait:max-sm:block">
+        ↻ Turn your phone sideways for bigger keys.
+      </p>
       <PianoKeyboard
         low={range.low}
         high={range.high}
@@ -214,7 +214,7 @@ export function TapAnswer({
             >
               <PlayIcon className="h-4 w-4" />
             </button>
-            <button type="button" onClick={next} className={`${btn} bg-[#38d9a9] px-5 text-ink`}>
+            <button type="button" onClick={next} className={`${btn} bg-success px-5 text-ink`}>
               Next
               <Kbd>→</Kbd>
             </button>
@@ -236,7 +236,7 @@ export function TapAnswer({
               type="button"
               onClick={check}
               disabled={!selected.length}
-              className={`${btn} bg-gradient-to-br from-accent to-accent-2 px-5 shadow`}
+              className={`${btn} bg-brand px-5 shadow`}
             >
               Check
               <Kbd>Enter</Kbd>

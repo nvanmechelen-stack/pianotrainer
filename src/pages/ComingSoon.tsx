@@ -8,7 +8,7 @@ export function ComingSoon({ title, intro, points }: Props) {
   return (
     <div className="mx-auto flex min-h-full max-w-xl flex-col justify-center p-4">
       <div className="rounded-3xl border border-line bg-panel p-6 shadow-xl">
-        <span className="rounded-full bg-accent-2/20 px-3 py-1 text-xs font-extrabold tracking-wide text-accent-2 uppercase">
+        <span className="rounded-full bg-accent-2/20 px-3 py-1 text-xs font-extrabold tracking-wide text-accent-soft uppercase">
           Coming soon
         </span>
         <h1 className="mt-3 text-3xl font-black">{title}</h1>
