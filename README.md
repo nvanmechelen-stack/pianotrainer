@@ -29,6 +29,10 @@ npm run build    # production build in dist/
 - `src/flow/progression.ts`: key orders, ii–V–I progressions and voice-leading placement for the ii-V-I Flow tab (framework-free, tested).
 - `src/pages/`: one component per tab.
 
+## Analytics
+
+Visits are counted with Google Analytics (Firebase), and only if the visitor clicks *Accept* in the cookie banner. The Firebase SDK is loaded lazily after that choice and only on the live site (`pianotrainer-8e3da.web.app`), so previews and local testing don't count. Page views on tab changes come from GA4's enhanced measurement. See the numbers in the Firebase console under *Analytics*, or in Google Analytics (*Reports → Realtime* shows visits within a minute; other reports update within a day). *Cookie settings* at the bottom of the Home page asks again.
+
 ## Deployment
 
 GitHub Actions deploy to Firebase Hosting:
