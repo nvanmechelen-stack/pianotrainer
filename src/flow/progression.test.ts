@@ -55,34 +55,47 @@ describe('progressions', () => {
     expect(flow.map(names)).toEqual(['D F A C', 'D F G B', 'C E G B'])
   })
 
-  it('stays in range, moves little within a key and resets register only at a key change', () => {
+  it('starts every closed ii–V–I with the ii in root position', () => {
+    const flow = buildFlow({ quality: 'major', style: 'closed', keys: keySequence('wholeSteps', 0), beatsPerChord: 4 })
+    for (const c of flow.filter((c) => c.degree === 'ii')) expect(c.voicing.notes[0].interval.label).toBe('1')
+    // Cmaj7 → Cm7: only the 3rd and the 7th move, each down a half step.
+    expect(names(flow[2])).toBe('C E G B')
+    expect(names(flow[3])).toBe('C E♭ G B♭')
+    expect([...voiceMoves(flow[2].voicing, flow[3].voicing).values()].sort()).toEqual([-1, -1, 0, 0])
+  })
+
+  it('follows the keys down the keyboard without jumps', () => {
+    const upperOf = (c: ReturnType<typeof buildFlow>[number]) =>
+      c.voicing.notes.filter((n) => !n.isBass).map((n) => n.midi)
+    const avg = (ns: number[]) => ns.reduce((a, b) => a + b, 0) / ns.length
     for (const quality of ['major', 'minor'] as const)
       for (const style of ['rootless', 'shell', 'closed'] as const)
         for (const start of [0, 3]) {
           const flow = buildFlow({ quality, style, keys: keySequence('wholeSteps', start), beatsPerChord: 4 })
-          for (const c of flow) {
-            const upper = c.voicing.notes.filter((n) => !n.isBass).map((n) => n.midi)
-            expect(Math.min(...upper)).toBeGreaterThanOrEqual(FLOW_RANGES[style].low)
-            expect(Math.max(...upper)).toBeLessThanOrEqual(FLOW_RANGES[style].high)
-          }
-          const upperOf = (c: (typeof flow)[number]) => c.voicing.notes.filter((n) => !n.isBass).map((n) => n.midi)
-          const avg = (ns: number[]) => ns.reduce((a, b) => a + b, 0) / ns.length
           for (let i = 1; i < flow.length; i++) {
             const label = `${quality} ${style} ${flow[i - 1].symbol} → ${flow[i].symbol}`
-            if (flow[i].degree === 'ii') {
-              // A key change may reset the register (the keys keep going down): the hand moves about an octave at most.
-              expect(Math.abs(avg(upperOf(flow[i])) - avg(upperOf(flow[i - 1]))), label).toBeLessThanOrEqual(13)
-              continue
-            }
-            // Within a key: half or whole steps. Up to a 3rd for closed chords near the bottom of the
-            // range, and in minor, where the 11 of the m7♭5 moves to the ♭13 of the 7alt.
-            const limit = style === 'closed' || quality === 'minor' ? 4 : 2
+            // Half or whole steps; up to a 4th where the shape changes (a closed ii back in root
+            // position, or the 11 of a m7♭5 moving to the ♭13 of the 7alt).
+            const limit = style === 'closed' || quality === 'minor' || flow[i].degree === 'ii' ? 5 : 2
             const moves = [...voiceMoves(flow[i - 1].voicing, flow[i].voicing).entries()].sort((a, b) => a[0] - b[0])
             // A shell's root is the bass and may leap; its 3rd and 7th must move smoothly.
             for (const [, m] of style === 'shell' ? moves.slice(1) : moves)
               expect(Math.abs(m), label).toBeLessThanOrEqual(limit)
           }
+          // Six keys a whole step apart: the last ii sits clearly lower than the first.
+          const iis = flow.filter((c) => c.degree === 'ii').map((c) => avg(upperOf(c)))
+          expect(iis[0] - iis[iis.length - 1], `${quality} ${style}`).toBeGreaterThanOrEqual(6)
         }
+  })
+
+  it('keeps long rounds in a playable register', () => {
+    for (const style of ['rootless', 'shell', 'closed'] as const)
+      for (const order of ['fourths', 'chromatic', 'random'] as const) {
+        const flow = buildFlow({ quality: 'major', style, keys: keySequence(order, 0), beatsPerChord: 4 })
+        const notes = flow.flatMap((c) => c.voicing.notes.map((n) => n.midi))
+        expect(Math.min(...notes), `${style} ${order}`).toBeGreaterThanOrEqual(FLOW_RANGES[style].low - 12)
+        expect(Math.max(...notes), `${style} ${order}`).toBeLessThanOrEqual(FLOW_RANGES[style].high)
+      }
   })
 })
 

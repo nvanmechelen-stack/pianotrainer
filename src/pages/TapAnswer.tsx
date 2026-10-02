@@ -36,6 +36,8 @@ interface Props {
   freePractice?: boolean
   /** Keys shown underneath while building, e.g. the previous chord. */
   context?: KeyHighlight[]
+  /** The keyboard window; defaults to C3–G5, where every voicing fits in some octave. */
+  range?: { low: number; high: number }
 }
 
 /** "On screen" answering: build the voicing by tapping keys, then check it. */
@@ -48,6 +50,7 @@ export function TapAnswer({
   disabled,
   freePractice,
   context = [],
+  range = TAP_RANGE,
 }: Props) {
   const [selected, setSelected] = useState<number[]>([])
   const [result, setResult] = useState<CheckResult | null>(null)
@@ -93,7 +96,7 @@ export function TapAnswer({
 
   const check = useCallback(() => {
     if (finished || !selected.length) return
-    const r = checkShape(target, selected, TAP_RANGE, bass ? pitchClass(bass.note) : undefined)
+    const r = checkShape(target, selected, range, bass ? pitchClass(bass.note) : undefined)
     setResult(r)
     if (r.correct) {
       setPhase('correct')
@@ -106,7 +109,7 @@ export function TapAnswer({
 
   const showSolution = useCallback(() => {
     if (finished) return
-    const r = checkShape(target, selected, TAP_RANGE, bass ? pitchClass(bass.note) : undefined)
+    const r = checkShape(target, selected, range, bass ? pitchClass(bass.note) : undefined)
     setResult(r)
     setPhase('solution')
     setMissed(true)
@@ -140,7 +143,7 @@ export function TapAnswer({
   if (phase === 'solution') {
     for (const n of voicing.notes) {
       const midi = n.midi + shift
-      if (midi >= TAP_RANGE.low && midi <= TAP_RANGE.high)
+      if (midi >= range.low && midi <= range.high)
         highlights.push({ midi, label: label(n), color: ROLE_COLORS[colorKey(n)] })
     }
   } else if (result) {
@@ -192,8 +195,8 @@ export function TapAnswer({
   return (
     <>
       <PianoKeyboard
-        low={TAP_RANGE.low}
-        high={TAP_RANGE.high}
+        low={range.low}
+        high={range.high}
         highlights={highlights}
         onKeyPress={tap}
         className="block max-h-[45dvh] w-full short:max-h-[40dvh]"

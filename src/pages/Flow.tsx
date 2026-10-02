@@ -45,7 +45,7 @@ const DEFAULTS: FlowSettings = {
   mode: 'listen',
   answer: 'piano',
   quality: 'major',
-  style: 'rootless',
+  style: 'closed',
   order: 'wholeSteps',
   startPc: 0,
   bpm: 80,
@@ -54,13 +54,14 @@ const DEFAULTS: FlowSettings = {
   beatsPerChord: 4,
 }
 
-const SETTINGS_KEY = 'pianotrainer.flow.settings'
+// v2: closed voicings became the default; start everyone fresh on the new defaults.
+const SETTINGS_KEY = 'pianotrainer.flow.settings.v2'
 const ALL_PCS = Array.from({ length: 12 }, (_, i) => i)
 const BEATS_PER_BAR = 4
 /** The previous chord, shown faintly so you can see where the voices come from. */
 const PREVIOUS = '#c9c5e8'
 
-const STYLE_LABELS: Record<FlowStyle, string> = { rootless: 'Rootless', shell: 'Shells', closed: 'Closed' }
+const STYLE_LABELS: Record<FlowStyle, string> = { closed: 'Closed', rootless: 'Rootless', shell: 'Shells' }
 const ORDER_LABELS: Record<KeyOrder, string> = {
   wholeSteps: 'Whole steps ↓',
   fourths: 'Circle of 4ths',
@@ -309,7 +310,7 @@ export function Flow() {
             />
             <Segmented
               className="min-w-[16rem] flex-1"
-              options={(['rootless', 'shell', 'closed'] as FlowStyle[]).map((s) => ({ value: s, label: STYLE_LABELS[s] }))}
+              options={(['closed', 'rootless', 'shell'] as FlowStyle[]).map((s) => ({ value: s, label: STYLE_LABELS[s] }))}
               value={settings.style}
               onChange={(style: FlowStyle) => update({ style })}
             />
@@ -459,6 +460,7 @@ export function Flow() {
               labelMode={labelMode}
               onLabelModeChange={setLabelMode}
               freePractice
+              range={range}
               context={previous ? previous.voicing.notes.filter((n) => !n.isBass).map((n) => ({ midi: n.midi, label: '', color: PREVIOUS })) : []}
               onDone={advance}
               disabled={showSettings}

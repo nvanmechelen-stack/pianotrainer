@@ -9,17 +9,18 @@ export type KeyOrder = 'wholeSteps' | 'fourths' | 'chromatic' | 'random' | 'sing
 export type Degree = 'ii' | 'V' | 'I'
 
 /**
- * Where the played notes may go. Rootless and closed voicings stay on the C3–G5 keyboard used for
- * on-screen answers; shells sit lower because their root is the bass note.
+ * Registers per style. Voicings follow the keys down (or up) the keyboard; `low`/`high` only
+ * catch a long drift (e.g. twelve keys round the circle of fourths), where a key change then moves
+ * back towards `centre`. After building, the whole flow is shifted by octaves to sit around `centre`.
  */
 export const FLOW_RANGES: Record<FlowStyle, { low: number; high: number; centre: number }> = {
-  rootless: { low: 48, high: 79, centre: 57 },
-  closed: { low: 48, high: 79, centre: 57 },
-  shell: { low: 36, high: 72, centre: 50 },
+  rootless: { low: 40, high: 86, centre: 60 },
+  closed: { low: 40, high: 86, centre: 60 },
+  shell: { low: 28, high: 79, centre: 52 },
 }
 
-/** For shells the root (the bass) may leap by a 4th or 5th; it must stay in this window, C2–E3. */
-const SHELL_ROOT = { low: 36, high: 52 }
+/** For shells the root (the bass) may leap by a 4th or 5th, within this window (E1–G3). */
+const SHELL_ROOT = { low: 28, high: 55 }
 
 /** The voices that should move smoothly: all of them, except the root of a shell. */
 const smoothVoices = (notes: number[], style: FlowStyle) =>
@@ -106,7 +107,7 @@ function placements(v: Voicing, prev: number[] | null, style: FlowStyle): Placed
   const range = FLOW_RANGES[style]
   const notes = upper(v)
   const all: Placed[] = []
-  for (let k = -4; k <= 4; k++) {
+  for (let k = -5; k <= 5; k++) {
     const shifted = notes.map((m) => m + 12 * k)
     const lowest = Math.min(...shifted)
     if (lowest < range.low || Math.max(...shifted) > range.high) continue
@@ -120,18 +121,15 @@ function placements(v: Voicing, prev: number[] | null, style: FlowStyle): Placed
   return all.length ? all.sort((a, b) => a.cost - b.cost) : [{ voicing: v, cost: 1000 }]
 }
 
-
 /**
- * Forms per degree: rootless A → B → A (shells 1-3-7 → 1-7-3 → 1-3-7), or the mirror image
- * B → A → B. A key starts on A unless B moves clearly less over the whole ii–V–I: as the keys go
- * down the register drifts, and switching forms at a key change avoids a jump in the middle of a key.
+ * Which form each degree uses. Every ii–V–I starts on the same shape: closed chords with the ii in
+ * root position (1-3-5-7), then V and I in the inversion closest to the chord before; rootless
+ * A → B → A; shells 1-3-7 → 1-7-3 → 1-3-7.
  */
-const ORIENTATIONS: Record<Degree, number>[] = [
-  { ii: 0, V: 1, I: 0 },
-  { ii: 1, V: 0, I: 1 },
-]
-/** Extra semitones of movement form B must save before it is preferred over form A. */
-const PREFER_A = 6
+const FORMS: Record<Exclude<FlowStyle, 'closed'>, Record<Degree, number>> = {
+  rootless: { ii: 0, V: 1, I: 0 },
+  shell: { ii: 0, V: 1, I: 0 },
+}
 
 export interface FlowOptions {
   quality: Quality
@@ -142,7 +140,6 @@ export interface FlowOptions {
 }
 
 const DEGREES: Degree[] = ['ii', 'V', 'I']
-const IN_KEY_WEIGHT = 3
 
 export function buildFlow({ quality, style, keys, beatsPerChord }: FlowOptions): FlowChord[] {
   const out: FlowChord[] = []
@@ -154,59 +151,33 @@ export function buildFlow({ quality, style, keys, beatsPerChord }: FlowOptions):
       V: transpose(tonic, INTERVALS.P5),
       I: tonic,
     }
-    const chordFor = (d: Degree) => CHORDS[quality][d]
-
-    // Place the three chords of this key. The ii may take any octave (that is where a register reset
-    // belongs); V and I then each move as little as possible. Movement inside the key weighs heavier,
-    // so a needed jump happens at the key change rather than between V and I.
-    const placeKey = (variantFor: (d: Degree, from: number[] | null) => Placed[]) => {
-      let best: { placed: Placed[]; total: number } | null = null
-      for (const ii of variantFor('ii', prev)) {
-        let from = upper(ii.voicing)
-        let total = ii.cost
-        const placed = [ii]
-        for (const d of ['V', 'I'] as Degree[]) {
-          const p = variantFor(d, from)[0]
-          total += p.cost * IN_KEY_WEIGHT
-          from = upper(p.voicing)
-          placed.push(p)
-        }
-        if (!best || total < best.total) best = { placed, total }
-      }
-      return best!
-    }
-
-    let result: { placed: Placed[]; total: number }
-    if (style === 'closed') {
-      // The very first chord in root position; after that, the inversion closest to the previous chord.
-      result = placeKey((d, from) =>
-        (from ? [0, 1, 2, 3] : [0])
-          .flatMap((v) => placements(buildVoicing(roots[d], chordFor(d), 'closed', v), from, style))
-          .sort((a, b) => a.cost - b.cost),
-      )
-    } else {
-      const [a, b] = ORIENTATIONS.map((o) =>
-        placeKey((d, from) => placements(buildVoicing(roots[d], chordFor(d), style, o[d]), from, style)),
-      )
-      result = b.total + PREFER_A < a.total ? b : a
-    }
-
-    result.placed.forEach(({ voicing }, i) => {
-      const degree = DEGREES[i]
-      const chordId = chordFor(degree)
+    for (const degree of DEGREES) {
+      const chordId = CHORDS[quality][degree]
+      const root = roots[degree]
+      // Each chord sits in the octave that moves least from the one before, so the hand follows
+      // the keys down the keyboard.
+      const variants = style === 'closed' ? (degree === 'ii' ? [0] : [0, 1, 2, 3]) : [FORMS[style][degree]]
+      const placed = variants
+        .flatMap((v) => placements(buildVoicing(root, chordId, style, v), prev, style))
+        .reduce((a, b) => (b.cost < a.cost ? b : a))
       out.push({
         keyPc,
         degree,
         chordId,
-        root: roots[degree],
-        symbol: noteName(roots[degree]) + CHORD_TYPES[chordId].symbol,
+        root,
+        symbol: noteName(root) + CHORD_TYPES[chordId].symbol,
         beats: degree === 'I' ? beatsPerChord * 2 : beatsPerChord,
-        voicing,
+        voicing: placed.voicing,
       })
-    })
-    prev = upper(result.placed[2].voicing)
+      prev = upper(placed.voicing)
+    }
   }
-  return out
+
+  // Centre the whole flow in its register, keeping its shape (a falling round starts high, ends low).
+  const all = out.flatMap((c) => upper(c.voicing))
+  const mean = all.reduce((a, b) => a + b, 0) / all.length
+  const shift = 12 * Math.round((FLOW_RANGES[style].centre - mean) / 12)
+  return shift ? out.map((c) => ({ ...c, voicing: shiftVoicing(c.voicing, shift) })) : out
 }
 
 /**
