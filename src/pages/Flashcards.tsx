@@ -3,14 +3,12 @@ import { playChord } from '../audio/piano'
 import { PlayIcon } from '../components/Icons'
 import { LabelToggle, type LabelMode, VoicingKeyboard } from '../components/VoicingKeyboard'
 import {
-  ALL_ROOTS,
   answer,
   type Card,
   cardPool,
   cardTitle,
   DEFAULT_SETTINGS,
   type DeckSettings,
-  EASY_ROOTS,
   hardestCards,
   isFinished,
   repeatsLeft,
@@ -18,12 +16,12 @@ import {
   type Round,
   ROUND_SIZE,
 } from '../flashcards/deck'
-import { CHORD_ORDER, CHORD_TYPES, type ChordId, rootFor } from '../theory/chords'
-import { noteName } from '../theory/notes'
+import { CHORD_TYPES, rootFor } from '../theory/chords'
 import { buildVoicing } from '../theory/voicings'
 import { TapAnswer } from './TapAnswer'
 import { Segmented } from '../components/Segmented'
-import { Chip, Kbd, Switch } from '../components/Controls'
+import { Kbd } from '../components/Controls'
+import { DeckSettingsPanel } from '../components/DeckSettingsPanel'
 import { load, local, save, session } from '../storage'
 
 // Settings survive visits (localStorage); the running round lives as long as the tab (sessionStorage).
@@ -70,7 +68,6 @@ export function Flashcards() {
     setRound(newRound(pool))
     setRevealed(false)
   }
-  const toggleIn = <T,>(list: T[], item: T) => (list.includes(item) ? list.filter((x) => x !== item) : [...list, item])
 
   const reveal = useCallback(() => {
     if (!voicing) return
@@ -152,69 +149,11 @@ export function Flashcards() {
       </section>
 
       {showSettings && (
-        <section className="flex flex-col gap-2.5 rounded-3xl border border-line bg-panel p-3 shadow-lg short:gap-1.5 short:p-2">
-          <div>
-            <h2 className="mb-1.5 text-xs font-black tracking-wide text-muted uppercase">Chord types</h2>
-            <div className="flex flex-wrap gap-1.5">
-              {CHORD_ORDER.map((id: ChordId) => (
-                <Chip
-                  key={id}
-                  on={settings.chords.includes(id)}
-                  onClick={() => updateSettings({ ...settings, chords: toggleIn(settings.chords, id) })}
-                >
-                  {CHORD_TYPES[id].label}
-                </Chip>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="mb-1.5 flex items-center gap-2">
-              <h2 className="text-xs font-black tracking-wide text-muted uppercase">Roots</h2>
-              <button
-                type="button"
-                onClick={() => updateSettings({ ...settings, roots: ALL_ROOTS })}
-                className="rounded-lg bg-panel-2 px-2 py-0.5 text-xs font-black"
-              >
-                All 12
-              </button>
-              <button
-                type="button"
-                onClick={() => updateSettings({ ...settings, roots: EASY_ROOTS })}
-                className="rounded-lg bg-panel-2 px-2 py-0.5 text-xs font-black"
-              >
-                Easy keys
-              </button>
-            </div>
-            <div className="grid grid-cols-6 gap-1 sm:grid-cols-12">
-              {ALL_ROOTS.map((pc) => (
-                <Chip
-                  key={pc}
-                  on={settings.roots.includes(pc)}
-                  onClick={() => updateSettings({ ...settings, roots: toggleIn(settings.roots, pc) })}
-                >
-                  {noteName(rootFor(CHORD_TYPES['7'], pc))}
-                </Chip>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Switch
-              on={settings.inversions}
-              onClick={() => updateSettings({ ...settings, inversions: !settings.inversions })}
-              label="Inversions"
-              hint="1st, 2nd and 3rd inversion"
-            />
-            <Switch
-              on={settings.voicings}
-              onClick={() => updateSettings({ ...settings, voicings: !settings.voicings })}
-              label="Voicings"
-              hint="Shell, Rootless A/B, Drop-2"
-            />
-          </div>
-          <p className="text-xs font-bold text-muted">
-            {pool.length} different cards · changing a setting starts a new round.
-          </p>
-        </section>
+        <DeckSettingsPanel
+          settings={settings}
+          onChange={updateSettings}
+          note={`${pool.length} different cards · changing a setting starts a new round.`}
+        />
       )}
 
       {pool.length === 0 ? (
