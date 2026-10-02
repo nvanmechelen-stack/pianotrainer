@@ -73,7 +73,7 @@ export interface Round {
   misses: Record<string, number>
 }
 
-type Rng = () => number
+export type Rng = () => number
 
 function shuffle<T>(items: T[], rng: Rng): T[] {
   const a = [...items]
@@ -84,16 +84,21 @@ function shuffle<T>(items: T[], rng: Rng): T[] {
   return a
 }
 
-/** ROUND_SIZE cards; without repeats when the pool is large enough, never the same card twice in a row. */
-export function newRound(pool: Card[], rng: Rng = Math.random): Round {
+/** `count` cards: without repeats while the pool lasts, and never the same card twice in a row. */
+export function dealCards(pool: Card[], count: number, rng: Rng = Math.random): Card[] {
   const cards: Card[] = []
-  while (pool.length && cards.length < ROUND_SIZE) {
+  while (pool.length && cards.length < count) {
     let batch = shuffle(pool, rng)
     const last = cards[cards.length - 1]
     if (last && batch.length > 1 && cardKey(batch[0]) === cardKey(last)) batch = [...batch.slice(1), batch[0]]
-    cards.push(...batch.slice(0, ROUND_SIZE - cards.length))
+    cards.push(...batch.slice(0, count - cards.length))
   }
-  return { queue: cards.map((card) => ({ card, retry: false })), answered: 0, correct: 0, misses: {} }
+  return cards
+}
+
+/** A new round of ROUND_SIZE cards. */
+export function newRound(pool: Card[], rng: Rng = Math.random): Round {
+  return { queue: dealCards(pool, ROUND_SIZE, rng).map((card) => ({ card, retry: false })), answered: 0, correct: 0, misses: {} }
 }
 
 /** Handle "Got it" (true) or "Practice again" (false) for the card at the head of the queue. */

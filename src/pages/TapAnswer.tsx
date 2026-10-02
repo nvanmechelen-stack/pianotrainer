@@ -35,6 +35,11 @@ interface Props {
   context?: KeyHighlight[]
   /** The keyboard window; defaults to C3–G5, where every voicing fits in some octave. */
   range?: { low: number; high: number }
+  /**
+   * Speed Trainer: silent, a right answer moves on by itself (onDone(true)), a wrong Check only
+   * marks wrong keys (no missing-key hints), and "Give up" shows the solution briefly (onDone(false)).
+   */
+  speed?: boolean
 }
 
 /** "On screen" answering: build the voicing by tapping keys, then check it. */
@@ -48,6 +53,7 @@ export function TapAnswer({
   freePractice,
   context = [],
   range = TAP_RANGE,
+  speed = false,
 }: Props) {
   const [selected, setSelected] = useState<number[]>([])
   const [result, setResult] = useState<CheckResult | null>(null)
@@ -61,10 +67,21 @@ export function TapAnswer({
   const finished = phase === 'correct' || phase === 'solution'
 
   const label = (n: VoicedNote) => (labelMode === 'degree' ? n.interval.label : noteName(n.note))
+  const sound = {
+    note: (m: number) => !speed && playNote(m),
+    chord: (ms: number[]) => !speed && playChord(ms),
+  }
+
+  // Speed Trainer: move on by itself, after a short flash of the result.
+  useEffect(() => {
+    if (!speed || (phase !== 'correct' && phase !== 'solution')) return
+    const t = window.setTimeout(() => onDone(phase === 'correct'), phase === 'correct' ? 350 : 1500)
+    return () => window.clearTimeout(t)
+  }, [speed, phase, onDone])
 
   const tap = (midi: number) => {
     if (finished) {
-      playNote(midi)
+      sound.note(midi)
       return
     }
     setResult(null)
@@ -72,7 +89,7 @@ export function TapAnswer({
     if (selected.includes(midi)) {
       setSelected(selected.filter((m) => m !== midi))
     } else {
-      playNote(midi)
+      sound.note(midi)
       setSelected([...selected, midi])
     }
   }
@@ -97,7 +114,7 @@ export function TapAnswer({
     setResult(r)
     if (r.correct) {
       setPhase('correct')
-      playChord(selected)
+      sound.chord(selected)
     } else {
       setPhase('checked')
       setMissed(true)
@@ -110,7 +127,7 @@ export function TapAnswer({
     setResult(r)
     setPhase('solution')
     setMissed(true)
-    playChord(target.map((m) => m + r.shift))
+    sound.chord(target.map((m) => m + r.shift))
   }, [finished, selected, target, bass])
 
   const next = useCallback(() => {
@@ -154,7 +171,7 @@ export function TapAnswer({
         highlights.push({ midi: m, label: '✕', color: RED })
       }
     }
-    for (const m of result.missing) {
+    for (const m of speed ? [] : result.missing) {
       const n = byShiftedMidi.get(m)
       highlights.push({ midi: m, label: n ? label(n) : '', color: AMBER, outline: true })
     }
@@ -177,13 +194,19 @@ export function TapAnswer({
           : 'Correct now! This card will come back later.'
     tone = 'text-success'
   } else if (phase === 'solution') {
-    message = freePractice ? 'Here is the solution.' : 'Here is the solution. This card will come back later.'
+    message = speed
+      ? 'Here is the solution (+3 s).'
+      : freePractice
+        ? 'Here is the solution.'
+        : 'Here is the solution. This card will come back later.'
     tone = 'text-warning'
   } else if (result) {
     const counts = Object.values(result.marks)
     const right = counts.filter((m) => m === 'correct').length
     const wrong = counts.length - right
-    message = `Not quite: ${right} right, ${wrong} wrong, ${result.missing.length} missing. Fix it and check again.`
+    message = speed
+      ? `Not quite: ${wrong ? `${wrong} wrong key${wrong > 1 ? 's' : ''}` : 'some keys missing'}. Keep going!`
+      : `Not quite: ${right} right, ${wrong} wrong, ${result.missing.length} missing. Fix it and check again.`
     tone = 'text-danger'
   }
 
@@ -203,8 +226,8 @@ export function TapAnswer({
       />
       <p className={`mt-2 min-h-5 text-sm font-bold short:mt-1 short:text-xs ${tone}`}>{message}</p>
       <div className="mt-2 flex flex-wrap items-center justify-end gap-2 short:mt-1">
-        {(result || finished) && <LabelToggle value={labelMode} onChange={onLabelModeChange} />}
-        {finished ? (
+        {!speed && (result || finished) && <LabelToggle value={labelMode} onChange={onLabelModeChange} />}
+        {speed && finished ? null : finished ? (
           <>
             <button
               type="button"
@@ -230,7 +253,7 @@ export function TapAnswer({
               <Kbd>Esc</Kbd>
             </button>
             <button type="button" onClick={showSolution} className={`${btn} bg-panel-2 text-muted`}>
-              Show solution
+              {speed ? 'Give up (+3 s)' : 'Show solution'}
             </button>
             <button
               type="button"

@@ -35,7 +35,7 @@ export const PAGES: Record<string, PageMeta> = {
   '/speed': {
     title: `Speed Trainer — ${SITE_NAME}`,
     description:
-      'Coming soon to Piano Trainer: find jazz piano voicings against the clock and track your times per key and chord type, so you can see where to practise more.',
+      'Find jazz piano voicings against the clock: sprint through 10 chords or play as many as you can in one minute, beat your record and spot your slowest chords.',
   },
 }
 

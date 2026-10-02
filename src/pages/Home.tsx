@@ -61,10 +61,11 @@ const SECTIONS: Section[] = [
     tagline: 'Against the clock',
     icon: SpeedIcon,
     points: [
-      'Find voicings as fast as you can while the clock runs.',
-      'Track your times per key and chord type to spot weak spots.',
+      'Sprint: play 10 chords as fast as you can. Or see how many you get right in one minute.',
+      'At the piano or on screen, with the same chord choices as the Flashcards.',
+      'Beat your personal record and see your three slowest chords.',
     ],
-    ready: false,
+    ready: true,
   },
 ]
 

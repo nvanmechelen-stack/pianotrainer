@@ -11,7 +11,7 @@ import { applyPageMeta, NOT_FOUND, PAGES } from './seo'
 const Explorer = lazy(() => import('./pages/Explorer').then((m) => ({ default: m.Explorer })))
 const Flashcards = lazy(() => import('./pages/Flashcards').then((m) => ({ default: m.Flashcards })))
 const Flow = lazy(() => import('./pages/Flow').then((m) => ({ default: m.Flow })))
-const ComingSoon = lazy(() => import('./pages/ComingSoon').then((m) => ({ default: m.ComingSoon })))
+const Speed = lazy(() => import('./pages/Speed').then((m) => ({ default: m.Speed })))
 
 function Loading() {
   return (
@@ -36,20 +36,7 @@ export default function App() {
               <Route path="/explorer" element={<Explorer />} />
               <Route path="/flashcards" element={<Flashcards />} />
               <Route path="/flow" element={<Flow />} />
-              <Route
-                path="/speed"
-                element={
-                  <ComingSoon
-                    title="Speed Trainer"
-                    intro="Against the clock: how fast can you find the voicing?"
-                    points={[
-                      'Random chord symbols appear; find the voicing as fast as you can.',
-                      'Times are tracked per key and chord type so you can see your weak spots.',
-                      'Later: MIDI input from a real keyboard.',
-                    ]}
-                  />
-                }
-              />
+              <Route path="/speed" element={<Speed />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
