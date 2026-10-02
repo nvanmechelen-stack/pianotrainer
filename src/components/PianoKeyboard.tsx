@@ -8,6 +8,8 @@ export interface KeyHighlight {
   color: string
   /** Draw only a coloured outline (e.g. a key that is still missing). */
   outline?: boolean
+  /** Small text above the label, e.g. how a voice moved: "=", "↓½". */
+  badge?: string
 }
 
 interface Props {
@@ -42,6 +44,22 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
     setPressed(midi)
     onKeyPress?.(midi)
   }
+
+  const renderBadge = (h: KeyHighlight, cx: number, cy: number, black: boolean) =>
+    h.badge ? (
+      <text
+        x={cx}
+        y={cy}
+        textAnchor="middle"
+        fontSize={black ? 24 : 28}
+        fontWeight={900}
+        fill={black ? '#ffffff' : '#12112a'}
+        fontFamily="Nunito, system-ui, sans-serif"
+        pointerEvents="none"
+      >
+        {h.badge}
+      </text>
+    ) : null
 
   const renderLabel = (h: KeyHighlight, cx: number, cy: number, black: boolean) => {
     if (!h.label) return null
@@ -107,6 +125,7 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
                 C{Math.floor(m / 12) - 1}
               </text>
             )}
+            {h && renderBadge(h, x + WHITE_W / 2, WHITE_H - 112, false)}
             {h && renderLabel(h, x + WHITE_W / 2, WHITE_H - 60, false)}
           </g>
         )
@@ -128,6 +147,7 @@ export function PianoKeyboard({ low, high, highlights = [], onKeyPress, classNam
               strokeDasharray={h?.outline ? '14 8' : undefined}
               opacity={pressed === m ? 0.75 : 1}
             />
+            {h && renderBadge(h, x + BLACK_W / 2, BLACK_H - 84, true)}
             {h && renderLabel(h, x + BLACK_W / 2, BLACK_H - 42, true)}
           </g>
         )

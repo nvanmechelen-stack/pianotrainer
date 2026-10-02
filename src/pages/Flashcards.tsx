@@ -23,6 +23,8 @@ import { noteName } from '../theory/notes'
 import { buildVoicing } from '../theory/voicings'
 import { TapAnswer } from './TapAnswer'
 import { Segmented } from '../components/Segmented'
+import { Chip, Kbd, Switch } from '../components/Controls'
+import { load, local, save, session } from '../storage'
 
 // Settings survive visits (localStorage); the running round lives as long as the tab (sessionStorage).
 const SETTINGS_KEY = 'pianotrainer.flashcards.settings'
@@ -32,72 +34,8 @@ const MODE_KEY = 'pianotrainer.flashcards.mode'
 /** "piano": play on your own piano, then reveal. "screen": build the chord on the on-screen keyboard. */
 type AnswerMode = 'piano' | 'screen'
 
-function load<T>(storage: () => Storage, key: string): T | null {
-  try {
-    const raw = storage().getItem(key)
-    return raw ? (JSON.parse(raw) as T) : null
-  } catch {
-    return null
-  }
-}
-
-function save(storage: () => Storage, key: string, value: unknown) {
-  try {
-    storage().setItem(key, JSON.stringify(value))
-  } catch {
-    // Storage unavailable (private mode): the app still works, it just forgets.
-  }
-}
-
-const local = () => window.localStorage
-const session = () => window.sessionStorage
 
 const cardVoicing = (c: Card) => buildVoicing(rootFor(CHORD_TYPES[c.chordId], c.rootPc), c.chordId, c.style, c.variant)
-
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={on}
-      className={`rounded-xl px-2.5 py-1.5 text-sm font-black transition-colors short:py-1 short:text-xs ${
-        on ? 'bg-gradient-to-br from-accent to-accent-2 text-white shadow' : 'bg-ink/60 text-muted hover:bg-panel-2 hover:text-white'
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
-
-function Switch({ on, onClick, label, hint }: { on: boolean; onClick: () => void; label: string; hint: string }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      onClick={onClick}
-      className="flex flex-1 items-center gap-2.5 rounded-2xl bg-ink/60 px-3 py-2 text-left short:py-1.5"
-    >
-      <span className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${on ? 'bg-accent-2' : 'bg-line'}`}>
-        <span
-          className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${on ? 'left-6' : 'left-1'}`}
-        />
-      </span>
-      <span>
-        <span className="block text-sm font-black">{label}</span>
-        <span className="block text-xs font-bold text-muted">{hint}</span>
-      </span>
-    </button>
-  )
-}
-
-function Kbd({ children }: { children: React.ReactNode }) {
-  return (
-    <kbd className="ml-1.5 hidden rounded-md bg-white/15 px-1.5 py-0.5 font-sans text-[10px] font-black [@media(hover:hover)]:inline">
-      {children}
-    </kbd>
-  )
-}
 
 export function Flashcards() {
   const [settings, setSettings] = useState<DeckSettings>(() => ({

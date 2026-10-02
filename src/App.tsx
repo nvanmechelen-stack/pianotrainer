@@ -3,6 +3,7 @@ import { NavBar } from './components/NavBar'
 import { Explorer } from './pages/Explorer'
 import { ComingSoon } from './pages/ComingSoon'
 import { Flashcards } from './pages/Flashcards'
+import { Flow } from './pages/Flow'
 import { Home } from './pages/Home'
 
 export default function App() {
@@ -14,20 +15,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/explorer" element={<Explorer />} />
           <Route path="/flashcards" element={<Flashcards />} />
-          <Route
-            path="/flow"
-            element={
-              <ComingSoon
-                title="ii-V-I Flow"
-                intro="Voice leading through the most important progression in jazz."
-                points={[
-                  'Step through ii–V–I in major and minor, in all 12 keys.',
-                  'Rootless voicings alternate A → B → A, so you see how little the hand moves.',
-                  'Play-along with an adjustable tempo.',
-                ]}
-              />
-            }
-          />
+          <Route path="/flow" element={<Flow />} />
           <Route
             path="/speed"
             element={
