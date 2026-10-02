@@ -1,20 +1,15 @@
 import { Component, type ReactNode } from 'react'
-import { reportError } from '../monitoring'
 
 interface State {
   failed: boolean
 }
 
-/** Shows a friendly message instead of a blank page when a page crashes, and reports the error. */
+/** Shows a friendly message instead of a blank page when a page crashes. */
 export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   state: State = { failed: false }
 
   static getDerivedStateFromError(): State {
     return { failed: true }
-  }
-
-  componentDidCatch(error: unknown) {
-    reportError(error)
   }
 
   render() {
