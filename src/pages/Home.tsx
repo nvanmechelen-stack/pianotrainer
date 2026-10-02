@@ -1,5 +1,6 @@
 import type { ComponentType, SVGProps } from 'react'
 import { Link } from 'react-router-dom'
+import { resetConsent } from '../analytics'
 import { playChord } from '../audio/piano'
 import { CardsIcon, ExplorerIcon, FlowIcon, PlayIcon, SpeedIcon } from '../components/Icons'
 import { type ColorKey, ROLE_COLORS, ROLE_LABELS } from '../components/roleColors'
@@ -191,6 +192,20 @@ export function Home() {
           </ul>
         </div>
       </section>
+
+      <p className="pb-2 text-center text-xs text-muted">
+        Visits are counted with Google Analytics, only if you accept cookies.{' '}
+        <button
+          type="button"
+          onClick={() => {
+            resetConsent()
+            window.dispatchEvent(new Event('pianotrainer:consent'))
+          }}
+          className="font-bold underline hover:text-white"
+        >
+          Cookie settings
+        </button>
+      </p>
     </div>
   )
 }

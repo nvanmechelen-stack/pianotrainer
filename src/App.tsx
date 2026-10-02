@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { ConsentBanner } from './components/ConsentBanner'
 import { NavBar } from './components/NavBar'
 import { Explorer } from './pages/Explorer'
 import { ComingSoon } from './pages/ComingSoon'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <ConsentBanner />
     </div>
   )
 }
